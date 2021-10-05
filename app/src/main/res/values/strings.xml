@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GuppyHelp</string>
+    <string name="tab_text_1">Testing Tab 1</string>
+    <string name="tab_text_2">Testing Tab 2</string>
+</resources>
