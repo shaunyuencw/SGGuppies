@@ -2,4 +2,5 @@
     <string name="app_name">SGGuppies</string>
     <string name="tab_text_1">Map</string>
     <string name="tab_text_2">Request</string>
+    <string name="help_sos">HELP SOS</string>
 </resources>
