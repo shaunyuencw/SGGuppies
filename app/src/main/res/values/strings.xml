@@ -3,4 +3,15 @@
     <string name="tab_text_1">Map</string>
     <string name="tab_text_2">Request</string>
     <string name="help_sos">HELP SOS</string>
+    <string-array name="HelpReq">
+        <item>YunanGarden</item>
+        <item>SouthSpine</item>
+        <item>SCSE</item>
+    </string-array>
+
+    <string-array name="TypeofSOS">
+        <item>Heartattack</item>
+        <item>Robbery</item>
+        <item> </item>
+    </string-array>
 </resources>
