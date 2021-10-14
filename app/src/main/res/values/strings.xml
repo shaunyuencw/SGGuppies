@@ -4,9 +4,9 @@
     <string name="tab_text_2">Request</string>
     <string name="help_sos">HELP SOS</string>
     <string-array name="HelpReq">
-        <item>YunanGarden</item>
-        <item>SouthSpine</item>
-        <item>SCSE</item>
+        <item>Man Dying at YunanGarden</item>
+        <item>Cardiac Arrest at SouthSpine</item>
+        <item>Terrorist Attack at SCSE</item>
     </string-array>
 
     <string-array name="TypeofSOS">
