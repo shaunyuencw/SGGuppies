@@ -31,7 +31,7 @@ public class RequestFragment extends Fragment {
         });
 
         Resources res = getResources();
-        zongweilist = (ListView) getActivity().findViewById(R.id.SOSList2);
+        zongweilist = (ListView) rootView.findViewById(R.id.SOSList2);
         items = res.getStringArray(R.array.HelpReq);
         zongweilist.setAdapter(new ArrayAdapter<>(getActivity(),R.layout.zongwei_listview_detail,items));
 
