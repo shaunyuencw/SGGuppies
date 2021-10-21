@@ -11,12 +11,22 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class RequestFragment extends Fragment {
     ListView zongweilist;
     String[] items;
+    Connection connect;
+    String ConnectionResult = "";
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -35,7 +45,31 @@ public class RequestFragment extends Fragment {
         items = res.getStringArray(R.array.HelpReq);
         zongweilist.setAdapter(new ArrayAdapter<>(getActivity(),R.layout.zongwei_listview_detail,items));
 
+        TextView tx1 = (TextView) rootView.findViewById(R.id.sqtest);
 
+        try{
+            ConnectiontoSQL connectiontoSQL = new ConnectiontoSQL();
+            connect = connectiontoSQL.connectionclass();
+            if(connect!=null)
+            {
+                String query ="SELECT * from request";
+                Statement st = connect.createStatement();
+                ResultSet rs = st.executeQuery(query);
+
+                while(rs.next())
+                {
+                    tx1.setText(rs.getString(1)); // Basically column 1 of the sql
+                                                   // I insert a Value 10
+                }  // and trying to set it to the textbox currently is "asdgf"
+
+            }
+            else{
+                ConnectionResult = "check connection";
+            }
+        } catch (Exception ex) {
+            tx1.setText("bob2");
+        }
+        //tx1.setText("bob2");
         return rootView;
     }
 
@@ -43,4 +77,6 @@ public class RequestFragment extends Fragment {
         Snackbar mySnackbar = Snackbar.make(view, "SOS message sent... sike u gon die", Snackbar.LENGTH_SHORT);
         mySnackbar.show();
     }
+
+
 }
