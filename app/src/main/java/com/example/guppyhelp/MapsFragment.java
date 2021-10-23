@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -50,6 +52,24 @@ public class MapsFragment extends Fragment {
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
              */
 
+            // Test Marker (will be CHANGED after connected to SQL)
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(1.372072, 103.848963))
+                    .title("Test Marker"));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(1.372136, 103.847054))
+                    .title("Test Marker"));
+            // googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(test, 15.0f));
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(@NonNull Marker marker) {
+                    // Change this to show AED detail
+                    Snackbar.make(getView(), "test", Snackbar.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+
+            // Check if permission granted, enable setMyLocationButton
             if(checkAndRequestPermissions()) {
                 if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
                         PackageManager.PERMISSION_GRANTED &&
