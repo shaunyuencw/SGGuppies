@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,8 +51,7 @@ public class RequestFragment extends Fragment {
         try{
             ConnectiontoSQL connectiontoSQL = new ConnectiontoSQL();
             connect = connectiontoSQL.connectionclass();
-            if(connect!=null)
-            {
+
                 String query ="SELECT * from request";
                 Statement st = connect.createStatement();
                 ResultSet rs = st.executeQuery(query);
@@ -62,12 +62,10 @@ public class RequestFragment extends Fragment {
                                                    // I insert a Value 10
                 }  // and trying to set it to the textbox currently is "asdgf"
 
-            }
-            else{
-                ConnectionResult = "check connection";
-            }
+
+
         } catch (Exception ex) {
-            tx1.setText("bob2");
+            Log.e("ERror2345", ex.getMessage());
         }
         //tx1.setText("bob2");
         return rootView;
