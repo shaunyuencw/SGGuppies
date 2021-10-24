@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,7 +16,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,6 +38,7 @@ import java.util.List;
 public class MapsFragment extends Fragment {
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     Marker lastAccessedMarker = null;
+    PopupWindow popupWindow = null;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -117,16 +120,35 @@ public class MapsFragment extends Fragment {
     };
 
     private void showAEDDetails(GoogleMap googleMap, Marker marker){
-        // Show AED details
+        // Increase AED icon size
         Snackbar.make(getView(), "AED CLICKED", Snackbar.LENGTH_SHORT).show();
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 16.0f));
         marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
         lastAccessedMarker = marker;
+
+        // Inflate the layout of the popup window
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE );
+        View popupView = inflater.inflate(R.layout.popup_aed, null);
+        // Change text in popup
+        TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
+        aedLocationText.setText("TO BE CHANGED");
+        TextView aedTimeText = popupView.findViewById(R.id.pop_aedTimeText);
+        aedTimeText.setText("TO BE CHANGED");
+        // Create the popup window
+        popupWindow = new PopupWindow();
+        popupWindow.setContentView(popupView);
+        popupWindow.setWidth(LinearLayout.LayoutParams.MATCH_PARENT);
+        popupWindow.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
+        popupWindow.setFocusable(false);
+        // Show the popup window
+        popupWindow.showAsDropDown(getView(), 0, -getView().getHeight()+popupView.getHeight());
     }
 
     private void closeAEDDetailPanel(Marker marker){
+        // Close AED popup
         if (marker != null){
             marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
+            popupWindow.dismiss();
         }
     }
 
