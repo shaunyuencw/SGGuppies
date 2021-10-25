@@ -11,9 +11,19 @@
     <string name="navigate">Navigate</string>
     <string name="aed_at">1 AED(s) at</string>
     <string name="aed_image">AED Image</string>
+
+    <!-- Activity AED Details -->
     <string name="location">Location</string>
     <string name="operating_hour">Operating Hour</string>
     <string name="aed_disclaimer">Disclaimer: Access to the AED is subject to the operating hour of the premises.</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="report">Report</string>
 
     <!-- Request Fragment Strings -->
     <string name="help_sos">HELP SOS</string>
