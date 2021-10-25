@@ -13,7 +13,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,8 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -31,6 +35,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -40,6 +46,7 @@ public class MapsFragment extends Fragment {
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     Marker lastAccessedMarker = null;
     PopupWindow popupWindow = null;
+    private Location lastKnownLocation = null;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -146,7 +153,7 @@ public class MapsFragment extends Fragment {
         navigateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(getView(), "NAVIGATE CLICKED", Snackbar.LENGTH_SHORT).show();
+                getPath(marker);
             }
         });
         // Create the popup window
@@ -177,16 +184,48 @@ public class MapsFragment extends Fragment {
 
     private void updateSurroundingAED(GoogleMap googleMap){
         // SQL query to get all surrounding AED
-        Snackbar.make(getView(), "UPDATE SURROUND AED", Snackbar.LENGTH_SHORT).show();
+        getLastLocation();
+        if (lastKnownLocation != null){
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 16.0f));
+        }
         googleMap.clear();
         lastAccessedMarker = null;
-        /**googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 16.0f));*/
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372072, 103.848963))
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372136, 103.847054))
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
+    }
+
+    // Get path function
+    private void getPath(Marker marker){
+        Snackbar.make(getView(), "NAVIGATE CLICKED", Snackbar.LENGTH_SHORT).show();
+        marker.getPosition();
+        lastKnownLocation.getLatitude();
+        lastKnownLocation.getLongitude();
+    }
+
+    @SuppressLint("MissingPermission")
+    public void getLastLocation() {
+        FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        locationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // GPS location can be null if GPS is switched off
+                        if (location != null) {
+                            lastKnownLocation = location;
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                        e.printStackTrace();
+                    }
+                });
     }
 
     // Change vector to bitmap
