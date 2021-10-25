@@ -14,18 +14,6 @@
         android:layout_height="wrap_content"
         android:text="This page will be used for Request/Respond to SOS call" />
 
-    <Button
-        android:id="@+id/sosButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|center"
-        android:layout_marginTop="50dp"
-        android:paddingLeft="35dp"
-        android:paddingTop="10dp"
-        android:paddingRight="35dp"
-        android:paddingBottom="10dp"
-        android:text="@string/help_sos" />
-
     <ListView
         android:id="@+id/SOSList2"
         android:layout_width="match_parent"
