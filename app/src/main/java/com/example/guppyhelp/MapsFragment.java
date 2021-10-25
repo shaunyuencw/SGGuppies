@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -40,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MapsFragment extends Fragment {
@@ -138,15 +140,18 @@ public class MapsFragment extends Fragment {
         View popupView = inflater.inflate(R.layout.popup_aed, null);
         // Change text in popup
         TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
-        aedLocationText.setText("TO BE CHANGED (AED Location)");
         TextView aedTimeText = popupView.findViewById(R.id.pop_aedTimeText);
-        aedTimeText.setText("TO BE CHANGED (AED Availability Today: Time)");
+        String markerSnippet = marker.getSnippet();
+        List<String> markerInfo = Arrays.asList(markerSnippet.split(","));
+        aedLocationText.setText(markerInfo.get(0));
+        aedTimeText.setText(markerInfo.get(1));
         // Create onClickListener for buttons
         TextView moreDetailsButton = popupView.findViewById(R.id.pop_moreDetailButton);
         moreDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(getView(), "MORE DETAILS CLICKED", Snackbar.LENGTH_SHORT).show();
+                Intent intentAEDDetails = new Intent(getActivity(), AEDDetailsActivity.class);
+                startActivity(intentAEDDetails);
             }
         });
         TextView navigateButton = popupView.findViewById(R.id.pop_navigateButton);
@@ -192,9 +197,13 @@ public class MapsFragment extends Fragment {
         lastAccessedMarker = null;
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372072, 103.848963))
+                .title("AED id 1")
+                .snippet("TO BE CHANGED (location),TO BE CHANGED (time)")
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372136, 103.847054))
+                .title("AED id 2")
+                .snippet("TO BE CHANGED (location),TO BE CHANGED (time)")
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
     }
 
