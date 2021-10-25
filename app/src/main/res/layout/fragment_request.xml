@@ -9,6 +9,7 @@
     <!-- TODO: Update blank fragment layout -->
 
     <TextView
+        android:id="@+id/sqltest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="This page will be used for Request/Respond to SOS call" />
