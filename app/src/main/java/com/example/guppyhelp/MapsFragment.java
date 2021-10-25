@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -89,7 +90,7 @@ public class MapsFragment extends Fragment {
 
             // Get myLocationButton
             SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            final View myLocationButton = mapFragment.getView().findViewById(0x2);
+            @SuppressLint("ResourceType") final View myLocationButton = mapFragment.getView().findViewById(0x2);
             // Change myLocationButton position
             RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) myLocationButton.getLayoutParams();
             rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,0);
@@ -119,9 +120,8 @@ public class MapsFragment extends Fragment {
         }
     };
 
-    private void showAEDDetails(GoogleMap googleMap, Marker marker){
+    private void showAEDDetails(GoogleMap googleMap, final Marker marker){
         // Increase AED icon size
-        Snackbar.make(getView(), "AED CLICKED", Snackbar.LENGTH_SHORT).show();
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 16.0f));
         marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
         lastAccessedMarker = marker;
@@ -131,15 +131,38 @@ public class MapsFragment extends Fragment {
         View popupView = inflater.inflate(R.layout.popup_aed, null);
         // Change text in popup
         TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
-        aedLocationText.setText("TO BE CHANGED");
+        aedLocationText.setText("TO BE CHANGED (AED Location)");
         TextView aedTimeText = popupView.findViewById(R.id.pop_aedTimeText);
-        aedTimeText.setText("TO BE CHANGED");
+        aedTimeText.setText("TO BE CHANGED (AED Availability Today: Time)");
+        // Create onClickListener for buttons
+        TextView moreDetailsButton = popupView.findViewById(R.id.pop_moreDetailButton);
+        moreDetailsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(getView(), "MORE DETAILS CLICKED", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+        TextView navigateButton = popupView.findViewById(R.id.pop_navigateButton);
+        navigateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(getView(), "NAVIGATE CLICKED", Snackbar.LENGTH_SHORT).show();
+            }
+        });
         // Create the popup window
         popupWindow = new PopupWindow();
         popupWindow.setContentView(popupView);
         popupWindow.setWidth(LinearLayout.LayoutParams.MATCH_PARENT);
         popupWindow.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
         popupWindow.setFocusable(false);
+        popupWindow.setOutsideTouchable(true);
+        // When tab is pressed, change icon back + dismiss popup
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                closeAEDDetailPanel(marker);
+            }
+        });
         // Show the popup window
         popupWindow.showAsDropDown(getView(), 0, -getView().getHeight()+popupView.getHeight());
     }
@@ -157,6 +180,7 @@ public class MapsFragment extends Fragment {
         Snackbar.make(getView(), "UPDATE SURROUND AED", Snackbar.LENGTH_SHORT).show();
         googleMap.clear();
         lastAccessedMarker = null;
+        /**googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 16.0f));*/
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372072, 103.848963))
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
