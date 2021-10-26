@@ -8,30 +8,22 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/reqpopup"
-        android:layout_width="350dp"
-        android:layout_height="170dp"
+        android:layout_width="361dp"
+        android:layout_height="255dp"
         android:layout_marginTop="80dp"
         android:gravity="center"
-        app:cardBackgroundColor="#E35252"
+        android:state_focused="true"
+        app:cardBackgroundColor="#FDFDFD"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="25dp"
-            android:text="Do you really want to call for help?"
-            android:textColor="#F1EEEE"
-            android:textSize="20sp" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardview2"
             android:layout_width="match_parent"
             android:layout_height="70dp"
-            android:layout_marginTop="100dp">
+            android:layout_marginTop="185dp"
+            app:cardBackgroundColor="?attr/colorPrimary">
 
             <Button
                 android:id="@+id/acceptrequestbutton"
@@ -39,25 +31,89 @@
                 android:layout_height="50dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
-                android:onClick="acceptrequest"
-                android:text="YES" />
+                android:onClick="requestaccepted"
+                android:text="Confirm" />
+
         </androidx.cardview.widget.CardView>
 
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="80dp"
-            android:layout_height="70dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
-            app:srcCompat="@drawable/ic_baseline_warning_24" />
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="200dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="140dp"
+            android:layout_marginTop="100dp" />
 
-        <ImageView
-            android:id="@+id/imageView5"
-            android:layout_width="36dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="310dp"
-            android:layout_marginTop="10dp"
-            app:srcCompat="@drawable/ic_baseline_cancel_24" />
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="100dp"
+            android:text="Type of Emergency"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/editTextTextPersonName2"
+            android:layout_width="200dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="140dp"
+            android:layout_marginTop="140dp"
+            android:ems="10"
+            android:enabled="true"
+            android:text=""
+            android:state_focused="true"
+            android:focusableInTouchMode="true"
+            android:inputType="textPersonName"
+            android:textColor="#FFFEFE" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="140dp"
+            android:text="   Comments :"
+            android:textColor="#1E1D1D"
+            android:textSize="14sp" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/Cardview1"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            app:cardBackgroundColor="?attr/colorPrimary">
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="100dp"
+                android:layout_marginTop="25dp"
+                android:text="Confirm Request?"
+                android:textColor="#F1EEEE"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="36dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="310dp"
+                android:layout_marginTop="10dp"
+                android:onClick="cancelrequest"
+                android:tint="?attr/colorPrimary"
+                app:srcCompat="@drawable/ic_baseline_cancel_24"
+                app:tintMode="add" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="72dp"
+                android:layout_height="62dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:tint="?attr/colorPrimary"
+                app:srcCompat="@drawable/ic_baseline_warning_24"
+                app:tintMode="add" />
+        </androidx.cardview.widget.CardView>
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
