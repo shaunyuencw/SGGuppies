@@ -3,11 +3,13 @@ package com.example.guppyhelp;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -30,13 +33,42 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 public class RequestFragment extends Fragment {
-    static PopupWindow popupWindow = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_request, container, false);
+        View rootView2 = inflater.inflate(R.layout.fragment_request, container, false);
+        ImageView anim = (ImageView) rootView2.findViewById(R.id.imgAnimation1);
+        TextView responded = (TextView) rootView2.findViewById(R.id.responded);
+        TextView noresponder= (TextView) rootView2.findViewById(R.id.noresponders);
+
+        responded.setVisibility(View.GONE);
+        noresponder.setVisibility(View.GONE);
+        Handler hand = new Handler();
+        Runnable runnableanim = new Runnable() {
+            @Override
+            public void run() {
+                anim.animate().scaleX(8f).scaleY(8f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
+
+                    @Override
+                    public void run(){
+                        anim.setScaleX(1f);
+                        anim.setScaleY(1f);
+                        anim.setAlpha(1f);
+                    }
+                });
+                hand.postDelayed(this, 1500);
+            }
+
+        };
+        //for(int i=0;i<10;i++) {
+            runnableanim.run();
+        //    hand.postDelayed(runnableanim, 1500);
+       // }
+
+        return rootView2;
     }
+
 
 
 

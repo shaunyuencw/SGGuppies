@@ -6,14 +6,61 @@
     android:layout_height="match_parent"
     tools:context=".RequestFragment" >
 
+    <ImageView
+        android:id="@+id/imgAnimation1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:src="@drawable/circle"></ImageView>
+
+
     <Button
         android:id="@+id/SOSButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="50dp"
+        android:layout_width="105dp"
+        android:layout_height="105dp"
+        android:layout_gravity="center"
+        android:background="@drawable/circle"
+        android:color="@color/colorPrimary"
         android:onClick="requestbuttonclicked"
         android:text="SOS"
+        android:textColor="#F8F5F5"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/readystatus"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="-200dp"
+        android:gravity="center"
+        android:text="Status: Ready "
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="25sp"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/responded"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="-200dp"
+        android:gravity="center"
+        android:text="Request Sent "
+        android:textColor="@color/colorPrimary"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/noresponders"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="-150dp"
+        android:gravity="center"
+        android:text="Number"
+        android:textColor="@color/colorPrimary"
+        android:textSize="25sp" />
+
 </FrameLayout>

@@ -12,6 +12,7 @@ import com.google.android.material.tabs.TabLayout;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,16 +20,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.guppyhelp.ui.main.SectionsPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
     static PopupWindow popupWindow = null;
-
+    //TextView comments = (TextView) findViewById(R.id.comments);
+    //Button requestbutton = (Button) findViewById(R.id.SOSButton);
 
 
     @Override
@@ -42,21 +46,44 @@ public class MainActivity extends AppCompatActivity {
         tabs.setupWithViewPager(viewPager);
         LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
         dark.setVisibility(View.INVISIBLE);
+
+
     }
+    boolean SOS = false;
 
     public void requestbuttonclicked(View view) {
         // inflate the layout of the popup window
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.request_confirmation, null);
         Spinner mySpinner = (Spinner) popupView.findViewById(R.id.emergency_type);
+        Button requestbutton = (Button) findViewById(R.id.SOSButton);
 
 
         // create the popup window
         int width = LinearLayout.LayoutParams.WRAP_CONTENT;
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
         boolean focusable = false; // lets taps outside the popup also dismiss it
+        if(SOS == false){
+            //change to stop button
+            requestbutton.setText("Stop");
+           SOS = true;
+        }
+        else{
+            //change to SOS button
+            requestbutton.setText("SOS");
+            TextView ready = (TextView) findViewById(R.id.readystatus);
+            TextView responded = (TextView) findViewById(R.id.responded);
+            TextView noresponder= (TextView) findViewById(R.id.noresponders);
 
-        if(popupWindow == null) {
+            ready.setVisibility(View.VISIBLE);
+            responded.setVisibility(View.GONE);
+            noresponder.setVisibility(View.GONE);
+            SOS = false;
+
+
+        }
+
+        if(popupWindow == null && SOS == true) {
             popupWindow = new PopupWindow(popupView, width, height, focusable);
             popupWindow.setOutsideTouchable(false);
             LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
@@ -77,20 +104,51 @@ public class MainActivity extends AppCompatActivity {
             popupWindow = null;
             LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
             dark.setVisibility(View.INVISIBLE);
+            Button requestbutton = (Button) findViewById(R.id.SOSButton);
+            requestbutton.setText("SOS");
+            SOS = false;
+
+
         }
+
+        //remove the request from the database??
     }
 
     public void requestaccepted(View view){
         popupWindow.dismiss();
         LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
         dark.setVisibility(View.INVISIBLE);
+        TextView ready = (TextView) findViewById(R.id.readystatus);
+        TextView responded = (TextView) findViewById(R.id.responded);
+        TextView noresponder= (TextView) findViewById(R.id.noresponders);
 
-        //
+        ready.setVisibility(View.GONE);
+        responded.setVisibility(View.VISIBLE);
+        noresponder.setVisibility(View.VISIBLE);
 
         popupWindow = null;
 
-        //
     }
+
+
+
+
+
+    //private Runnable runnableanim = new Runnable(){
+      //  @Override
+     //   public void run() {
+       //     anim.animate().scaleX(4f).scaleY(4f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
+
+          //      @Override
+           //     public void run(){
+              //      anim.setScaleX(1f);
+             //       anim.setScaleY(1f);
+               //     anim.setAlpha(1f);
+              //  }
+           // });
+         //   hand.postDelayed(runnableanim,1500);
+       // }
+    //};
 
 
 }
