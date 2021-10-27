@@ -247,7 +247,7 @@ public class MapsFragment extends Fragment {
                     JSONObject jsonObject = new JSONObject(response);
 
                     JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
-                    JSONArray items = messageObject.getJSONArray("aed");
+                    JSONArray items = messageObject.getJSONArray("data");
 
                     try {
                         for (int i = 0; i < items.length(); i++) {
