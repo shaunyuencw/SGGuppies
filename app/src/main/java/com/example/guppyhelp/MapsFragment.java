@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -239,7 +240,10 @@ public class MapsFragment extends Fragment {
         LatLng destination, origin;
         destination = marker.getPosition();
         origin = new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude());
-        if(lastKnownLocation != null) {
+        String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin.latitude + "," + origin.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&travelmode=walking";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
+        /*if(lastKnownLocation != null) {
             // Instantiates a new Polyline object and adds points to define a rectangle
             PolylineOptions polylineOptions = new PolylineOptions()
                     .add(new LatLng(origin.latitude, origin.longitude))
@@ -255,7 +259,7 @@ public class MapsFragment extends Fragment {
             polyline = map.addPolyline(polylineOptions);
             closeAEDDetailPanel(marker);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 16.0f));
-        }
+        }*/
         //String text = Double.toString(origin.longitude) + " " + Double.toString(origin.latitude);
         //Snackbar.make(getView(), text, Snackbar.LENGTH_SHORT).show();
     }
