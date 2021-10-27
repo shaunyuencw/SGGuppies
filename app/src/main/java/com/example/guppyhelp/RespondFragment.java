@@ -2,8 +2,6 @@ package com.example.guppyhelp;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
-import static com.example.guppyhelp.MainActivity.popupWindow;
-
 import android.app.Dialog;
 import android.content.res.Resources;
 import android.os.Bundle;

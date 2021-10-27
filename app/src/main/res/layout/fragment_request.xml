@@ -3,13 +3,4 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RequestFragment" >
-
-    <Button
-        android:id="@+id/SOS"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="requestbuttonclicked"
-        android:text="Button"
-        tools:text="@string/sos" />
-</FrameLayout>
+    tools:context=".RequestFragment" />
