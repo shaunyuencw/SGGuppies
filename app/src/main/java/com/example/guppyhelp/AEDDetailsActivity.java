@@ -99,7 +99,7 @@ public class AEDDetailsActivity extends AppCompatActivity {
                 try {
                     JSONObject jsonObject = new JSONObject(response);
                     JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
-                    JSONArray items = messageObject.getJSONArray("aed");
+                    JSONArray items = messageObject.getJSONArray("data");
 
                     JSONObject aed = items.getJSONObject(0);
 
