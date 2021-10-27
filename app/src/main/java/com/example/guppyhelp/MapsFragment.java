@@ -250,7 +250,7 @@ public class MapsFragment extends Fragment {
     private void get_aed_info(final Context context, GoogleMap googleMap){
         ServerClass serverClass = new ServerClass();
         // TODO add WHERE condition to only get AEDs nearby
-        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_ FROM aedlocation LIMIT 100";
+        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status FROM aedlocation LIMIT 100";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
@@ -264,15 +264,30 @@ public class MapsFragment extends Fragment {
                     JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
                     JSONArray items = messageObject.getJSONArray("aed");
 
+
+
+
                     try {
                         for (int i = 0; i < items.length(); i++) {
                             JSONObject aed = items.getJSONObject(i);
                             // TODO Add markers
-                            googleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
+                            MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
                                     .title("AED id " + aed.getString("objectid"))
-                                    .snippet(aed.getString("building_n") + ", " + aed.getString("aed_loca_1") + ", " + aed.getString("operating_"))
-                                    .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
+                                    .snippet(aed.getString("building_n") + ", " + aed.getString("aed_loca_1") + ", " + aed.getString("operating_"));
+
+                            if (aed.getString("status").equals("Pending")){
+                                markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon));
+                            }
+                            else if (aed.getString("status").equals("Unavailable")){
+                                markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_unava_icon));
+                            }
+                            else{
+                                markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon));
+                            }
+
+                            googleMap.addMarker(markerOptions);
+
+
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -319,7 +334,7 @@ public class MapsFragment extends Fragment {
         lastAccessedMarker = null;
         // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
         // TODO removed by Shaun to test dynamic markers
-        /*
+
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.371002, 103.847463))
                 .title("AED id 4")
@@ -339,7 +354,7 @@ public class MapsFragment extends Fragment {
                 .position(new LatLng(1.372136, 103.847054))
                 .title("AED id 2")
                 .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Available")
-                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));*/
+                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
     }
 
     // Get path function
