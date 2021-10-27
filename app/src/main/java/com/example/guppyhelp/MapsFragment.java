@@ -249,7 +249,8 @@ public class MapsFragment extends Fragment {
 
     private void get_aed_info(final Context context, GoogleMap googleMap){
         ServerClass serverClass = new ServerClass();
-        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_ FROM aedlocation LIMIT 20";
+        // TODO add WHERE condition to only get AEDs nearby
+        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_ FROM aedlocation LIMIT 100";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
@@ -270,7 +271,7 @@ public class MapsFragment extends Fragment {
                             googleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
                                     .title("AED id " + aed.getString("objectid"))
-                                    .snippet(aed.getString("aed_loca_1") + ", " + aed.getString("operating_"))
+                                    .snippet(aed.getString("building_n") + ", " + aed.getString("aed_loca_1") + ", " + aed.getString("operating_"))
                                     .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
                         }
                     } catch (JSONException e) {
