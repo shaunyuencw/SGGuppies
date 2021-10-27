@@ -171,6 +171,11 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intentAEDDetails = new Intent(getActivity(), AEDDetailsActivity.class);
+                LatLng latlng = lastAccessedMarker.getPosition();
+                String lat = Double.toString(latlng.latitude);
+                String lng = Double.toString(latlng.longitude);
+                intentAEDDetails.putExtra("longitude", lng);
+                intentAEDDetails.putExtra("latitude", lat);
                 startActivity(intentAEDDetails);
             }
         });
