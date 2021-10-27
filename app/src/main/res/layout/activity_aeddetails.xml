@@ -11,10 +11,12 @@
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         android:background="@color/colorPrimaryWhite"
+        android:contentDescription="@string/aed_image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/aed" />
+        app:srcCompat="@drawable/aed"
+        tools:ignore="ImageContrastCheck" />
 
     <View
         android:id="@+id/view"
@@ -259,6 +261,8 @@
         android:background="@color/colorPrimary"
         android:foregroundGravity="center_vertical"
         android:onClick="onReportButtonClicked"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:text="@string/report"
         android:textColor="@color/colorPrimaryWhite"
         app:layout_constraintEnd_toEndOf="parent"
