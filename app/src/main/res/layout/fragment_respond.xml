@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/SOSlist"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RespondFragment" >
+
+    <TextView
+        android:id="@+id/sqltest3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="This page will be used for Request/Respond to SOS call" />
+
+    <ListView
+        android:id="@+id/SOSList2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:paddingLeft="35dp"
+        android:paddingTop="150dp"
+        android:paddingRight="35dp"
+        android:paddingBottom="200dp" />
+</FrameLayout>

@@ -69,6 +69,7 @@ public class MapsFragment extends Fragment {
     private Location lastKnownLocation = null;
     GoogleMap map;
     Polyline polyline = null;
+    String person = null;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -213,6 +214,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void updateSurroundingAED(GoogleMap googleMap){
+        // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
         // SQL query to get all surrounding AED
         getLastLocation();
         if (lastKnownLocation != null){
@@ -318,6 +320,10 @@ public class MapsFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
+        }
+        if(getArguments() != null){
+            person = getArguments().getString("person");
+            Snackbar.make(getView(), person, Snackbar.LENGTH_SHORT).show();
         }
     }
 }
