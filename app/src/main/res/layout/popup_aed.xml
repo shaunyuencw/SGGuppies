@@ -45,7 +45,7 @@
         tools:ignore="ImageContrastCheck" />
 
     <TextView
-        android:id="@+id/pop_aedLocationText"
+        android:id="@+id/pop_aedBuildingText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -59,7 +59,7 @@
         app:layout_constraintTop_toBottomOf="@+id/view2" />
 
     <TextView
-        android:id="@+id/pop_aedTimeText"
+        android:id="@+id/pop_aedLocationText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -71,7 +71,7 @@
         android:textColor="@android:color/darker_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/pop_aedLocationText"
+        app:layout_constraintTop_toBottomOf="@+id/pop_aedBuildingText"
         tools:ignore="TextContrastCheck" />
 
     <TextView
@@ -86,7 +86,7 @@
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/pop_aedTimeText"
+        app:layout_constraintTop_toBottomOf="@+id/pop_aedLocationText"
         tools:ignore="TouchTargetSizeCheck" />
 
     <TextView
@@ -101,7 +101,7 @@
         android:textColor="@color/colorAccent"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/pop_moreDetailButton"
-        app:layout_constraintTop_toBottomOf="@+id/pop_aedTimeText"
+        app:layout_constraintTop_toBottomOf="@+id/pop_aedLocationText"
         tools:ignore="TextContrastCheck" />
 
     <View

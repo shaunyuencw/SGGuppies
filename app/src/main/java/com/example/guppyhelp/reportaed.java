@@ -1,37 +1,27 @@
 package com.example.guppyhelp;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Base64;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
-import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,13 +65,51 @@ public class reportaed extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String text = lat + " " + lng + " " + description.getText().toString();
-                Snackbar.make(view, text, Snackbar.LENGTH_LONG).show();
+                Toast.makeText(view.getContext(), "Sending report...", Toast.LENGTH_SHORT).show();
+                String aedId = getIntent().getExtras().getString("id");
+                reportAEDSQL(view.getContext(), aedId);
             }
         });
     }
+
+    private void reportAEDSQL(Context context, String aedId){
+        ServerClass serverClass = new ServerClass();
+        String desc = ((EditText) findViewById(R.id.description)).getText().toString();
+
+        String reportStatus_sql = "UPDATE aedlocation " +
+                "SET status = 'Pending', report_description = '"+desc+"'" +
+                "WHERE objectid = '"+aedId+"'";
+
+        RequestQueue mRequestQueue = Volley.newRequestQueue(context);
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Toast.makeText(context, "Thank you for reporting", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+                finish();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("sql", reportStatus_sql);
+
+                return params;
+            }
+        };
+
+        mStringRequest.setShouldCache(false);
+        mRequestQueue.add(mStringRequest);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        setResult(RESULT_OK);
         finish();
         return true;
     }
