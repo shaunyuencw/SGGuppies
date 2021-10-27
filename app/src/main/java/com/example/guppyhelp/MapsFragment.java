@@ -1,11 +1,5 @@
 package com.example.guppyhelp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -24,11 +18,24 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -36,19 +43,32 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
+import org.json.JSONObject;
 
 public class MapsFragment extends Fragment {
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     Marker lastAccessedMarker = null;
     PopupWindow popupWindow = null;
     private Location lastKnownLocation = null;
+    GoogleMap map;
+    Polyline polyline = null;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -64,7 +84,7 @@ public class MapsFragment extends Fragment {
 
         @Override
         public void onMapReady(final GoogleMap googleMap) {
-
+            map = googleMap;
             /** LatLng sydney = new LatLng(-34, 151);
             googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
@@ -209,10 +229,27 @@ public class MapsFragment extends Fragment {
 
     // Get path function
     private void getPath(Marker marker){
+        LatLng destination, origin;
+        destination = marker.getPosition();
+        origin = new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude());
+        if(lastKnownLocation != null) {
+            // Instantiates a new Polyline object and adds points to define a rectangle
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .add(new LatLng(origin.latitude, origin.longitude))
+                    .add(new LatLng(destination.latitude, destination.longitude))
+                    .color(Color.CYAN);  // North of the previous point, but at the same longitude
+                    // Closes the polyline.
+
+            // Get back the mutable Polyline
+            if(polyline != null)
+            {
+                polyline.remove();
+            }
+            polyline = map.addPolyline(polylineOptions);
+        }
+        //String text = Double.toString(origin.longitude) + " " + Double.toString(origin.latitude);
+        //Snackbar.make(getView(), text, Snackbar.LENGTH_SHORT).show();
         Snackbar.make(getView(), "NAVIGATE CLICKED", Snackbar.LENGTH_SHORT).show();
-        marker.getPosition();
-        lastKnownLocation.getLatitude();
-        lastKnownLocation.getLongitude();
     }
 
     @SuppressLint("MissingPermission")
