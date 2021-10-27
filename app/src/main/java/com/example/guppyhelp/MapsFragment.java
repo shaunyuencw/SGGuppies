@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -153,18 +154,24 @@ public class MapsFragment extends Fragment {
 
     private void showAEDDetails(GoogleMap googleMap, final Marker marker){
         // Increase AED icon size
+        String markerSnippet = marker.getSnippet();
+        List<String> markerInfo = Arrays.asList(markerSnippet.split(","));
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 16.0f));
-        marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
+        String status = markerInfo.get(2);
+        if (status.equals("Available")){
+            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
+        } else if (status.equals("Unavailable")){
+            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon_2));
+        } else if (status.equals("Pending")){
+            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon_2));
+        }
         lastAccessedMarker = marker;
-
         // Inflate the layout of the popup window
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE );
         View popupView = inflater.inflate(R.layout.popup_aed, null);
         // Change text in popup
         TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
         TextView aedTimeText = popupView.findViewById(R.id.pop_aedTimeText);
-        String markerSnippet = marker.getSnippet();
-        List<String> markerInfo = Arrays.asList(markerSnippet.split(","));
         aedLocationText.setText(markerInfo.get(0));
         aedTimeText.setText(markerInfo.get(1));
         // Create onClickListener for buttons
@@ -178,6 +185,7 @@ public class MapsFragment extends Fragment {
                 String lng = Double.toString(latlng.longitude);
                 intentAEDDetails.putExtra("longitude", lng);
                 intentAEDDetails.putExtra("latitude", lat);
+                intentAEDDetails.putExtra("person", person);
                 startActivity(intentAEDDetails);
             }
         });
@@ -209,7 +217,15 @@ public class MapsFragment extends Fragment {
     private void closeAEDDetailPanel(Marker marker){
         // Close AED popup
         if (marker != null){
-            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
+            String markerSnippet = marker.getSnippet();
+            String status = Arrays.asList(markerSnippet.split(",")).get(2);
+            if (status.equals("Available")){
+                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
+            } else if (status.equals("Unavailable")){
+                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon));
+            } else if (status.equals("Pending")){
+                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon));
+            }
             popupWindow.dismiss();
         }
     }
@@ -223,15 +239,26 @@ public class MapsFragment extends Fragment {
         }
         googleMap.clear();
         lastAccessedMarker = null;
+        // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(1.371002, 103.847463))
+                .title("AED id 4")
+                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Unavailable")
+                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_unava_icon)));
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(1.372002, 103.849463))
+                .title("AED id 3")
+                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Pending")
+                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon)));
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372072, 103.848963))
                 .title("AED id 1")
-                .snippet("TO BE CHANGED (location),TO BE CHANGED (time)")
+                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Available")
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.372136, 103.847054))
                 .title("AED id 2")
-                .snippet("TO BE CHANGED (location),TO BE CHANGED (time)")
+                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Available")
                 .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
     }
 
@@ -314,6 +341,7 @@ public class MapsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        person = getActivity().getIntent().getExtras().getString("person");
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
@@ -324,10 +352,6 @@ public class MapsFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
-        }
-        if(getArguments() != null){
-            person = getArguments().getString("person");
-            Snackbar.make(getView(), person, Snackbar.LENGTH_SHORT).show();
         }
     }
 }

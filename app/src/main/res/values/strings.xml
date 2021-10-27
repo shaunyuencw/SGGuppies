@@ -25,6 +25,8 @@
     <string name="saturday">Saturday</string>
     <string name="sunday">Sunday</string>
     <string name="report">Report Faulty AED</string>
+    <string name="avail">Set AED Available</string>
+    <string name="unavail">Set AED Unvailable</string>
 
     <!-- Request Fragment Strings -->
     <string name="sos">SOS</string>
