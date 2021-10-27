@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">SGGuppies</string>
     <string name="tab_text_1">Map</string>
+    <string name="tab_text_3">Respond</string>
     <string name="tab_text_2">Request</string>
 
     <!-- Placeholder for dynamic text -->
@@ -26,19 +27,23 @@
     <string name="report">Report Faulty AED</string>
 
     <!-- Request Fragment Strings -->
+    <string name="sos">SOS</string>
     <string name="help_sos">HELP SOS</string>
+
+    <!-- Respond Fragment Strings -->
     <string-array name="HelpReq">
         <item>Man Dying at YunanGarden</item>
         <item>Cardiac Arrest at SouthSpine</item>
         <item>Terrorist Attack at SCSE</item>
     </string-array>
-
     <string-array name="TypeofSOS">
         <item>Heartattack</item>
         <item>Robbery</item>
         <item> </item>
     </string-array>
     <string name="title_activity_login">login</string>
+
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

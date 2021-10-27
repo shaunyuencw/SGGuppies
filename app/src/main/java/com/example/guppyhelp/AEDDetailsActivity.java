@@ -7,11 +7,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 
 import com.google.android.material.snackbar.Snackbar;
 
 public class AEDDetailsActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +28,17 @@ public class AEDDetailsActivity extends AppCompatActivity {
     }
 
     public void onReportButtonClicked(View view) {
+        openActivity();
+    }
 
+    public void openActivity()
+    {
+        //Get the bundle
+        Bundle bundle = getIntent().getExtras();
+        Intent intent = new Intent(this, reportaed.class);
+        intent.putExtras(bundle);
+
+//Fire that second activity
+        startActivity(intent);
     }
 }

@@ -1,34 +1,25 @@
 package com.example.guppyhelp;
 
 import android.app.Dialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.example.guppyhelp.ui.main.SectionsPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
-
     static PopupWindow popupWindow = null;
     PopupWindow form;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +71,5 @@ public class MainActivity extends AppCompatActivity {
         dark.setVisibility(View.INVISIBLE);
         popupWindow = null;
     }
-
-
 }
 

@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.example.guppyhelp.MapsFragment;
 import com.example.guppyhelp.R;
 import com.example.guppyhelp.RequestFragment;
+import com.example.guppyhelp.RespondFragment;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
@@ -19,7 +20,7 @@ import com.example.guppyhelp.RequestFragment;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_2};
+    private static final int[] TAB_TITLES = new int[]{R.string.tab_text_1, R.string.tab_text_3, R.string.tab_text_2};
     private final Context mContext;
 
     public SectionsPagerAdapter(Context context, FragmentManager fm) {
@@ -35,6 +36,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 fragment = new MapsFragment();
                 break;
             case 1:
+                fragment = new RespondFragment();
+                break;
+            case 2:
                 fragment = new RequestFragment();
                 break;
         }
@@ -49,7 +53,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
-        return 2;
+        // Show total pages.
+        return 3;
     }
 }

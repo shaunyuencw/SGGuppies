@@ -36,9 +36,9 @@ public class login extends AppCompatActivity {
             public void onClick(View view) {
                 if(email.getText().toString().equals("admin") && password.getText().toString().equals("123")){
                     //correct account
-                    openActivity();
+                    openActivity(1);
                 }else if(email.getText().toString().equals("user") && password.getText().toString().equals("123")){
-                    openActivity();
+                    openActivity(0);
                 }else{
                     //incorrect
                     Snackbar.make(view, "YOU SHALL NOT PASS!!!", Snackbar.LENGTH_SHORT).show();
@@ -46,9 +46,16 @@ public class login extends AppCompatActivity {
             }
         });
     }
-    public void openActivity()
+    public void openActivity(int num)
     {
         Intent intent = new Intent(this, MainActivity.class);
+        Bundle bundle = new Bundle();
+        if(num == 1){
+            bundle.putString("person", "admin");
+        } else {
+            bundle.putString("person", "user");
+        }
+        intent.putExtras(bundle);
         startActivity(intent);
     }
 }

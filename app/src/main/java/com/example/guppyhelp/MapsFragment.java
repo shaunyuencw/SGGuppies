@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,6 +70,7 @@ public class MapsFragment extends Fragment {
     private Location lastKnownLocation = null;
     GoogleMap map;
     Polyline polyline = null;
+    String person = null;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -171,6 +173,11 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intentAEDDetails = new Intent(getActivity(), AEDDetailsActivity.class);
+                LatLng latlng = lastAccessedMarker.getPosition();
+                String lat = Double.toString(latlng.latitude);
+                String lng = Double.toString(latlng.longitude);
+                intentAEDDetails.putExtra("longitude", lng);
+                intentAEDDetails.putExtra("latitude", lat);
                 startActivity(intentAEDDetails);
             }
         });
@@ -208,6 +215,7 @@ public class MapsFragment extends Fragment {
     }
 
     private void updateSurroundingAED(GoogleMap googleMap){
+        // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
         // SQL query to get all surrounding AED
         getLastLocation();
         if (lastKnownLocation != null){
@@ -232,7 +240,10 @@ public class MapsFragment extends Fragment {
         LatLng destination, origin;
         destination = marker.getPosition();
         origin = new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude());
-        if(lastKnownLocation != null) {
+        String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin.latitude + "," + origin.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&travelmode=walking";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
+        /*if(lastKnownLocation != null) {
             // Instantiates a new Polyline object and adds points to define a rectangle
             PolylineOptions polylineOptions = new PolylineOptions()
                     .add(new LatLng(origin.latitude, origin.longitude))
@@ -248,7 +259,7 @@ public class MapsFragment extends Fragment {
             polyline = map.addPolyline(polylineOptions);
             closeAEDDetailPanel(marker);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 16.0f));
-        }
+        }*/
         //String text = Double.toString(origin.longitude) + " " + Double.toString(origin.latitude);
         //Snackbar.make(getView(), text, Snackbar.LENGTH_SHORT).show();
     }
@@ -313,6 +324,10 @@ public class MapsFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
+        }
+        if(getArguments() != null){
+            person = getArguments().getString("person");
+            Snackbar.make(getView(), person, Snackbar.LENGTH_SHORT).show();
         }
     }
 }
