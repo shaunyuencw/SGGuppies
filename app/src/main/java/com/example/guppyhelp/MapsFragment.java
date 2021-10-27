@@ -246,10 +246,11 @@ public class MapsFragment extends Fragment {
                 polyline.remove();
             }
             polyline = map.addPolyline(polylineOptions);
+            closeAEDDetailPanel(marker);
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 16.0f));
         }
         //String text = Double.toString(origin.longitude) + " " + Double.toString(origin.latitude);
         //Snackbar.make(getView(), text, Snackbar.LENGTH_SHORT).show();
-        Snackbar.make(getView(), "NAVIGATE CLICKED", Snackbar.LENGTH_SHORT).show();
     }
 
     @SuppressLint("MissingPermission")
