@@ -2,13 +2,13 @@ package com.example.guppyhelp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,18 +16,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -38,7 +36,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -46,26 +43,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-// Importing Custom Classes
-import com.example.guppyhelp.ServerClass;
 
 // Volley import
 import com.android.volley.AuthFailureError;
@@ -87,35 +73,19 @@ public class MapsFragment extends Fragment {
     PopupWindow popupWindow = null;
     private Location lastKnownLocation = null;
     GoogleMap map;
-    Polyline polyline = null;
     String person = null;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-
         @Override
         public void onMapReady(final GoogleMap googleMap) {
             map = googleMap;
-            /** LatLng sydney = new LatLng(-34, 151);
-            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(test, 15.0f));
-            */
 
             googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(@NonNull Marker marker) {
-                    closeAEDDetailPanel(lastAccessedMarker);
-                    showAEDDetails(googleMap, marker);
+                    closeAEDDetailPanel();
+                    showAEDDetails(marker);
                     return true;
                 }
             });
@@ -124,8 +94,8 @@ public class MapsFragment extends Fragment {
                 @Override
                 public boolean onMyLocationButtonClick()
                 {
-                    closeAEDDetailPanel(lastAccessedMarker);
-                    updateSurroundingAED(googleMap);
+                    closeAEDDetailPanel();
+                    updateSurroundingAED();
                     return false;
                 }
             });
@@ -133,7 +103,7 @@ public class MapsFragment extends Fragment {
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(@NonNull LatLng latLng) {
-                    closeAEDDetailPanel(lastAccessedMarker);
+                    closeAEDDetailPanel();
                 }
             });
 
@@ -169,12 +139,28 @@ public class MapsFragment extends Fragment {
         }
     };
 
-    private void showAEDDetails(GoogleMap googleMap, final Marker marker){
+    // Reload surrounding AEDs
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+                        @SuppressLint("ResourceType") final View myLocationButton = mapFragment.getView().findViewById(0x2);
+                        myLocationButton.performClick();
+                    }
+                }
+            });
+
+
+    private void showAEDDetails(Marker marker){
+        // TODO ADD TODAYS OPERATING TIME?
         // Increase AED icon size
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 18.0f));
         String markerSnippet = marker.getSnippet();
-        List<String> markerInfo = Arrays.asList(markerSnippet.split(","));
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 16.0f));
-        String status = markerInfo.get(2);
+        List<String> markerInfo = Arrays.asList(markerSnippet.split("&"));
+        String status = markerInfo.get(3);
         if (status.equals("Available")){
             marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
         } else if (status.equals("Unavailable")){
@@ -187,23 +173,19 @@ public class MapsFragment extends Fragment {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE );
         View popupView = inflater.inflate(R.layout.popup_aed, null);
         // Change text in popup
+        TextView aedBuildingText = popupView.findViewById(R.id.pop_aedBuildingText);
         TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
-        TextView aedTimeText = popupView.findViewById(R.id.pop_aedTimeText);
-        aedLocationText.setText(markerInfo.get(0));
-        aedTimeText.setText(markerInfo.get(1));
+        aedBuildingText.setText(markerInfo.get(0));
+        aedLocationText.setText(markerInfo.get(1));
         // Create onClickListener for buttons
         TextView moreDetailsButton = popupView.findViewById(R.id.pop_moreDetailButton);
         moreDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intentAEDDetails = new Intent(getActivity(), AEDDetailsActivity.class);
-                LatLng latlng = lastAccessedMarker.getPosition();
-                String lat = Double.toString(latlng.latitude);
-                String lng = Double.toString(latlng.longitude);
-                intentAEDDetails.putExtra("longitude", lng);
-                intentAEDDetails.putExtra("latitude", lat);
+                intentAEDDetails.putExtra("id", lastAccessedMarker.getTitle());
                 intentAEDDetails.putExtra("person", person);
-                startActivity(intentAEDDetails);
+                someActivityResultLauncher.launch(intentAEDDetails);
             }
         });
         TextView navigateButton = popupView.findViewById(R.id.pop_navigateButton);
@@ -224,33 +206,38 @@ public class MapsFragment extends Fragment {
         popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                closeAEDDetailPanel(marker);
+                closeAEDDetailPanel();
             }
         });
         // Show the popup window
         popupWindow.showAsDropDown(getView(), 0, -getView().getHeight()+popupView.getHeight());
     }
 
-    private void closeAEDDetailPanel(Marker marker){
+    private void closeAEDDetailPanel(){
         // Close AED popup
-        if (marker != null){
-            String markerSnippet = marker.getSnippet();
-            String status = Arrays.asList(markerSnippet.split(",")).get(2);
+        if (lastAccessedMarker != null){
+            String markerSnippet = lastAccessedMarker.getSnippet();
+            String status = Arrays.asList(markerSnippet.split("&")).get(3);
+
             if (status.equals("Available")){
-                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
+                lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
             } else if (status.equals("Unavailable")){
-                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon));
+                lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon));
             } else if (status.equals("Pending")){
-                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon));
+                lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon));
             }
             popupWindow.dismiss();
         }
     }
 
-    private void get_aed_info(final Context context, GoogleMap googleMap){
+    private void get_aed_info(Context context){
         ServerClass serverClass = new ServerClass();
-        // TODO add WHERE condition to only get AEDs nearby
-        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status FROM aedlocation LIMIT 100";
+        Double lat = lastKnownLocation.getLatitude();
+        Double lng = lastKnownLocation.getLongitude();
+
+        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status " +
+                "FROM aedlocation " +
+                "WHERE SQRT(POW(69.1 * (LATITUDE - "+lat+"), 2) + POW(69.1 * ("+lng+" - LONGTITUDE) * COS(LATITUDE / 57.3), 2)) <= 0.124274";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
@@ -259,21 +246,16 @@ public class MapsFragment extends Fragment {
                 try {
                     JSONObject jsonObject = new JSONObject(response);
 
-                    String success = jsonObject.getString("success");
-
                     JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
                     JSONArray items = messageObject.getJSONArray("aed");
-
-
-
 
                     try {
                         for (int i = 0; i < items.length(); i++) {
                             JSONObject aed = items.getJSONObject(i);
-                            // TODO Add markers
+
                             MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
-                                    .title("AED id " + aed.getString("objectid"))
-                                    .snippet(aed.getString("building_n") + ", " + aed.getString("aed_loca_1") + ", " + aed.getString("operating_"));
+                                    .title(aed.getString("objectid"))
+                                    .snippet(aed.getString("building_n") + "&" + aed.getString("aed_loca_1") + "&" + aed.getString("operating_") + "&" + aed.getString("status"));
 
                             if (aed.getString("status").equals("Pending")){
                                 markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon));
@@ -285,9 +267,7 @@ public class MapsFragment extends Fragment {
                                 markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon));
                             }
 
-                            googleMap.addMarker(markerOptions);
-
-
+                            map.addMarker(markerOptions);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -317,44 +297,10 @@ public class MapsFragment extends Fragment {
         mRequestQueue.add(mStringRequest);
     }
 
-    private void updateSurroundingAED(GoogleMap googleMap){
-        // TODO AED's from SGGuppies database
-        Toast.makeText(getActivity(), "Updating map...", Toast.LENGTH_SHORT).show();
-
-        get_aed_info(getActivity(), googleMap);
-
-
-        // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
-        // SQL query to get all surrounding AED
+    private void updateSurroundingAED(){
         getLastLocation();
-        if (lastKnownLocation != null){
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 16.0f));
-        }
-        googleMap.clear();
+        map.clear();
         lastAccessedMarker = null;
-        // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
-        // TODO removed by Shaun to test dynamic markers
-
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(1.371002, 103.847463))
-                .title("AED id 4")
-                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Unavailable")
-                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_unava_icon)));
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(1.372002, 103.849463))
-                .title("AED id 3")
-                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Pending")
-                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon)));
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(1.372072, 103.848963))
-                .title("AED id 1")
-                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Available")
-                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(1.372136, 103.847054))
-                .title("AED id 2")
-                .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Available")
-                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
     }
 
     // Get path function
@@ -396,6 +342,11 @@ public class MapsFragment extends Fragment {
                         // GPS location can be null if GPS is switched off
                         if (location != null) {
                             lastKnownLocation = location;
+                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 18.0f));
+                            // Get AED from DB
+                            // TODO DISPLAY AED BASED ON PERSON?
+                            Toast.makeText(getActivity(), "Updating map...", Toast.LENGTH_SHORT).show();
+                            get_aed_info(getActivity());
                         }
                     }
                 })
