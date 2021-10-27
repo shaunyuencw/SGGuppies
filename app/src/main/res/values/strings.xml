@@ -1,4 +1,8 @@
 <resources>
+    <!-- SGGuppies Server info START-->
+    <string name="server_ip_address">172.21.148.167</string>
+    <!-- SGGuppies Server info END-->
+
     <string name="app_name">SGGuppies</string>
     <string name="tab_text_1">Map</string>
     <string name="tab_text_3">Respond</string>

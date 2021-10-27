@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -61,7 +62,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+// Importing Custom Classes
+import com.example.guppyhelp.ServerClass;
+
+// Volley import
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MapsFragment extends Fragment {
@@ -230,7 +247,67 @@ public class MapsFragment extends Fragment {
         }
     }
 
+    private void get_aed_info(final Context context, GoogleMap googleMap){
+        ServerClass serverClass = new ServerClass();
+        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_ FROM aedlocation LIMIT 20";
+
+        RequestQueue mRequestQueue = Volley.newRequestQueue(context);
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    String success = jsonObject.getString("success");
+
+                    JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
+                    JSONArray items = messageObject.getJSONArray("aed");
+
+                    try {
+                        for (int i = 0; i < items.length(); i++) {
+                            JSONObject aed = items.getJSONObject(i);
+                            // TODO Add markers
+                            googleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
+                                    .title("AED id " + aed.getString("objectid"))
+                                    .snippet(aed.getString("aed_loca_1") + ", " + aed.getString("operating_"))
+                                    .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } catch (JSONException e) {
+                    Log.e("Debug", response);
+                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("sql", get_aed_SQL);
+
+                return params;
+            }
+        };
+
+        mStringRequest.setShouldCache(false);
+        mRequestQueue.add(mStringRequest);
+    }
+
     private void updateSurroundingAED(GoogleMap googleMap){
+        // TODO AED's from SGGuppies database
+        Toast.makeText(getActivity(), "Updating map...", Toast.LENGTH_SHORT).show();
+
+        get_aed_info(getActivity(), googleMap);
+
+
         // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
         // SQL query to get all surrounding AED
         getLastLocation();
@@ -240,6 +317,8 @@ public class MapsFragment extends Fragment {
         googleMap.clear();
         lastAccessedMarker = null;
         // Snackbar.make(getView(), getActivity().getIntent().getExtras().getString("person"), Snackbar.LENGTH_SHORT).show();
+        // TODO removed by Shaun to test dynamic markers
+        /*
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.371002, 103.847463))
                 .title("AED id 4")
@@ -259,7 +338,7 @@ public class MapsFragment extends Fragment {
                 .position(new LatLng(1.372136, 103.847054))
                 .title("AED id 2")
                 .snippet("TO BE CHANGED (location),TO BE CHANGED (time),Available")
-                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));
+                .icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon)));*/
     }
 
     // Get path function
