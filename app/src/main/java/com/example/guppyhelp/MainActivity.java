@@ -31,10 +31,9 @@ import com.example.guppyhelp.ui.main.SectionsPagerAdapter;
 public class MainActivity extends AppCompatActivity {
 
     static PopupWindow popupWindow = null;
-    //TextView comments = (TextView) findViewById(R.id.comments);
-    //Button requestbutton = (Button) findViewById(R.id.SOSButton);
 
 
+    boolean SOS = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,8 +47,9 @@ public class MainActivity extends AppCompatActivity {
         dark.setVisibility(View.INVISIBLE);
 
 
+
     }
-    boolean SOS = false;
+
 
     public void requestbuttonclicked(View view) {
         // inflate the layout of the popup window
@@ -74,10 +74,12 @@ public class MainActivity extends AppCompatActivity {
             TextView ready = (TextView) findViewById(R.id.readystatus);
             TextView responded = (TextView) findViewById(R.id.responded);
             TextView noresponder= (TextView) findViewById(R.id.noresponders);
+            TextView num = (TextView) findViewById(R.id.numberresponded);
 
             ready.setVisibility(View.VISIBLE);
             responded.setVisibility(View.GONE);
             noresponder.setVisibility(View.GONE);
+            num.setVisibility(View.GONE);
             SOS = false;
 
 
@@ -121,12 +123,39 @@ public class MainActivity extends AppCompatActivity {
         TextView ready = (TextView) findViewById(R.id.readystatus);
         TextView responded = (TextView) findViewById(R.id.responded);
         TextView noresponder= (TextView) findViewById(R.id.noresponders);
+        TextView num = (TextView) findViewById(R.id.numberresponded);
 
         ready.setVisibility(View.GONE);
         responded.setVisibility(View.VISIBLE);
         noresponder.setVisibility(View.VISIBLE);
+        num.setVisibility(View.VISIBLE);
+
 
         popupWindow = null;
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View v1 = inflater.inflate(R.layout.fragment_request, null);
+        ImageView anim = (ImageView) v1.findViewById(R.id.imgAnimation1);
+
+        Handler hand = new Handler();
+        Runnable runnableanim = new Runnable() {
+            @Override
+            public void run() {
+                anim.animate().scaleX(8f).scaleY(8f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
+
+                    @Override
+                    public void run(){
+                        anim.setScaleX(1f);
+                        anim.setScaleY(1f);
+                        anim.setAlpha(1f);
+                    }
+                });
+                hand.postDelayed(this, 1500);
+            }
+
+        };
+
+        runnableanim.run();
 
     }
 

@@ -41,7 +41,9 @@ public class RequestFragment extends Fragment {
         ImageView anim = (ImageView) rootView2.findViewById(R.id.imgAnimation1);
         TextView responded = (TextView) rootView2.findViewById(R.id.responded);
         TextView noresponder= (TextView) rootView2.findViewById(R.id.noresponders);
+        TextView num = (TextView) rootView2.findViewById(R.id.numberresponded);
 
+        num.setVisibility(View.GONE);
         responded.setVisibility(View.GONE);
         noresponder.setVisibility(View.GONE);
         Handler hand = new Handler();
@@ -61,10 +63,9 @@ public class RequestFragment extends Fragment {
             }
 
         };
-        //for(int i=0;i<10;i++) {
-            runnableanim.run();
-        //    hand.postDelayed(runnableanim, 1500);
-       // }
+
+        runnableanim.run();
+
 
         return rootView2;
     }
