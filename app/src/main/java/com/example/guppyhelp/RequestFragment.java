@@ -1,12 +1,7 @@
 package com.example.guppyhelp;
 
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,11 +18,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,36 +34,20 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.RunnableFuture;
 
 public class RequestFragment extends Fragment {
     static PopupWindow popupWindow = null;
@@ -114,13 +90,9 @@ public class RequestFragment extends Fragment {
                 });
                 hand.postDelayed(this, 1500);
             }
-
         };
 
         Button sos = (Button) rootView2.findViewById(R.id.SOSButton);
-
-
-
 
         sos.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,11 +173,9 @@ public class RequestFragment extends Fragment {
                             Button requestbutton = (Button) getActivity().findViewById(R.id.SOSButton);
                             requestbutton.setText("SOS");
                             SOS = false;
-
                         }
                     }
                 });
-
             }
         });
 
@@ -372,23 +342,23 @@ public class RequestFragment extends Fragment {
     public void getLastLocation() {
         FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @RequiresApi(api = Build.VERSION_CODES.O)
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Update lastKnownLocation + update DB
-                        if (location != null) {
-                            lastKnownLocation = location;
-                            submit_request(getContext());
-                        }
+            .addOnSuccessListener(new OnSuccessListener<Location>() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void onSuccess(Location location) {
+                    // Update lastKnownLocation + update DB
+                    if (location != null) {
+                        lastKnownLocation = location;
+                        submit_request(getContext());
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("MapDemoActivity", "Error trying to get last GPS location");
-                        e.printStackTrace();
-                    }
-                });
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                    e.printStackTrace();
+                }
+            });
     }
 }

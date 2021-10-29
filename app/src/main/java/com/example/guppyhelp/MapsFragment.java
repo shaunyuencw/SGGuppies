@@ -345,7 +345,6 @@ public class MapsFragment extends Fragment {
                             lastKnownLocation = location;
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 18.0f));
                             // Get AED from DB
-                            // TODO DISPLAY AED BASED ON PERSON?
                             Toast.makeText(getActivity(), "Updating map...", Toast.LENGTH_SHORT).show();
                             get_aed_info(getActivity());
                         }
