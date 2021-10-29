@@ -21,6 +21,8 @@ import com.google.android.material.tabs.TabLayout;
 
 public class login extends AppCompatActivity {
 
+    String person = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +38,11 @@ public class login extends AppCompatActivity {
             public void onClick(View view) {
                 if(email.getText().toString().equals("admin") && password.getText().toString().equals("123")){
                     //correct account
-                    openActivity(1);
-                }else if(email.getText().toString().equals("user") && password.getText().toString().equals("123")){
-                    openActivity(0);
+                    person = "admin";
+                    openActivity();
+                }else if(!(email.getText().toString().equals("")) && password.getText().toString().equals("123")){
+                    person = "user";
+                    openActivity();
                 }else{
                     //incorrect
                     Snackbar.make(view, "YOU SHALL NOT PASS!!!", Snackbar.LENGTH_SHORT).show();
@@ -46,15 +50,17 @@ public class login extends AppCompatActivity {
             }
         });
     }
-    public void openActivity(int num)
+    public void openActivity()
     {
         Intent intent = new Intent(this, MainActivity.class);
         Bundle bundle = new Bundle();
-        if(num == 1){
+        if(person == "admin"){
             bundle.putString("person", "admin");
         } else {
             bundle.putString("person", "user");
         }
+        TextView email = (TextView) findViewById(R.id.email);
+        bundle.putString("username", email.getText().toString());
         intent.putExtras(bundle);
         startActivity(intent);
     }

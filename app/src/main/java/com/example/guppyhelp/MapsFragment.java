@@ -269,6 +269,7 @@ public class MapsFragment extends Fragment {
 
                             map.addMarker(markerOptions);
                         }
+                        Toast.makeText(getActivity(), "Map updated", Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
