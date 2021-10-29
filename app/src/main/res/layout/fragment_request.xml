@@ -8,17 +8,19 @@
 
     <ImageView
         android:id="@+id/imgAnimation1"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:layout_gravity="center"
+        android:layout_marginTop="50dp"
         android:src="@drawable/circle"></ImageView>
 
 
     <Button
         android:id="@+id/SOSButton"
-        android:layout_width="105dp"
-        android:layout_height="105dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_gravity="center"
+        android:layout_marginTop="50dp"
         android:background="@drawable/circle"
         android:color="@color/colorPrimary"
         android:onClick="requestbuttonclicked"

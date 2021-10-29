@@ -61,7 +61,7 @@ public class RequestFragment extends Fragment {
         Runnable runnableanim = new Runnable() {
             @Override
             public void run() {
-                anim.animate().scaleX(8f).scaleY(8f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
+                anim.animate().scaleX(6f).scaleY(6f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
 
                     @Override
                     public void run(){
@@ -143,9 +143,12 @@ public class RequestFragment extends Fragment {
                         simpledateformat = new SimpleDateFormat("dd-MM-yyyy");
 
                         //strings to send to database
+
                         Date = simpledateformat.format(calender.getTime());
                         String Comments = comments.toString();
                         String type = mySpinner. getSelectedItem(). toString();
+
+                        //TODO insert to request table..
 
 
                     }
