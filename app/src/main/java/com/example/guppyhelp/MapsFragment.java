@@ -49,6 +49,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +156,6 @@ public class MapsFragment extends Fragment {
 
 
     private void showAEDDetails(Marker marker){
-        // TODO ADD TODAYS OPERATING TIME?
         // Increase AED icon size
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 18.0f));
         String markerSnippet = marker.getSnippet();
@@ -175,8 +175,35 @@ public class MapsFragment extends Fragment {
         // Change text in popup
         TextView aedBuildingText = popupView.findViewById(R.id.pop_aedBuildingText);
         TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
+        TextView aedTodayTime = popupView.findViewById(R.id.pop_todayTime);
         aedBuildingText.setText(markerInfo.get(0));
         aedLocationText.setText(markerInfo.get(1));
+        List<String> timerInfo = Arrays.asList(markerInfo.get(2).split(","));
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        switch (day) {
+            case Calendar.MONDAY:
+                aedTodayTime.setText(timerInfo.get(0));
+                break;
+            case Calendar.TUESDAY:
+                aedTodayTime.setText(timerInfo.get(1));
+                break;
+            case Calendar.WEDNESDAY:
+                aedTodayTime.setText(timerInfo.get(2));
+                break;
+            case Calendar.THURSDAY:
+                aedTodayTime.setText(timerInfo.get(3));
+                break;
+            case Calendar.FRIDAY:
+                aedTodayTime.setText(timerInfo.get(4));
+                break;
+            case Calendar.SATURDAY:
+                aedTodayTime.setText(timerInfo.get(5));
+                break;
+            case Calendar.SUNDAY:
+                aedTodayTime.setText(timerInfo.get(6));
+                break;
+        }
         // Create onClickListener for buttons
         TextView moreDetailsButton = popupView.findViewById(R.id.pop_moreDetailButton);
         moreDetailsButton.setOnClickListener(new View.OnClickListener() {
@@ -235,9 +262,15 @@ public class MapsFragment extends Fragment {
         Double lat = lastKnownLocation.getLatitude();
         Double lng = lastKnownLocation.getLongitude();
 
-        String get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status " +
-                "FROM aedlocation " +
-                "WHERE SQRT(POW(69.1 * (LATITUDE - "+lat+"), 2) + POW(69.1 * ("+lng+" - LONGTITUDE) * COS(LATITUDE / 57.3), 2)) <= 0.124274";
+        String get_aed_SQL;
+        if(person.equals("admin")){
+            get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status " +
+                    "FROM aedlocation";
+        } else {
+            get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status " +
+                    "FROM aedlocation " +
+                    "WHERE SQRT(POW(69.1 * (LATITUDE - "+lat+"), 2) + POW(69.1 * ("+lng+" - LONGTITUDE) * COS(LATITUDE / 57.3), 2)) <= 0.124274";
+        }
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {

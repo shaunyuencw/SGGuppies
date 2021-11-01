@@ -6,16 +6,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,10 +24,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -109,15 +102,12 @@ public class AEDDetailsActivity extends AppCompatActivity {
                     String timings = aed.getString("operating_");
                     List<String> timerInfo = Arrays.asList(timings.split(","));
                     ((TextView) findViewById(R.id.monTimeText)).setText(timerInfo.get(0));
-                    // TODO UNCOMMENT AFTER OPERATING TABLE IS CLEANED
-                    /**
                      ((TextView) findViewById(R.id.tueTimeText)).setText(timerInfo.get(1));
                      ((TextView) findViewById(R.id.wedTimeText)).setText(timerInfo.get(2));
                      ((TextView) findViewById(R.id.thuTimeText)).setText(timerInfo.get(3));
                      ((TextView) findViewById(R.id.friTimeText)).setText(timerInfo.get(4));
                      ((TextView) findViewById(R.id.satTimeText)).setText(timerInfo.get(5));
                      ((TextView) findViewById(R.id.sunTimeText)).setText(timerInfo.get(6));
-                     */
 
                     ((TextView) findViewById(R.id.statusText)).setText(aed.getString("status"));
 

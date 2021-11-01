@@ -14,6 +14,7 @@
     <!-- Map Fragment Strings -->
     <string name="more_detail">More Details</string>
     <string name="navigate">Navigate</string>
+    <string name="Today">Today:</string>
     <string name="aed_at">1 AED(s) at</string>
     <string name="aed_image">AED Image</string>
 
