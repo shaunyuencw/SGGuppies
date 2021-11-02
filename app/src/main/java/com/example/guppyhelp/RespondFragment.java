@@ -2,8 +2,10 @@ package com.example.guppyhelp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -35,6 +37,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -43,8 +47,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RespondFragment extends Fragment {
-    ListView zongweilist;
-    private ArrayList<String> data = new ArrayList<String>();
+    ListView requestListView;
+    private ArrayList<String> sendData = new ArrayList<String>();
+    private HashMap<String, ArrayList<String>> allData = new HashMap<>();
     EditText comment;
     String person = null;
     private Location lastKnownLocation = null;
@@ -55,7 +60,7 @@ public class RespondFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_respond, container, false);
         Resources res = getResources();
-        zongweilist = (ListView) rootView.findViewById(R.id.SOSList2);
+        requestListView = (ListView) rootView.findViewById(R.id.SOSList2);
         person = getActivity().getIntent().getExtras().getString("username");
         getLastLocation();
 
@@ -77,7 +82,6 @@ public class RespondFragment extends Fragment {
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                // TODO Get and populate ListView
                 String tempStr;
                 try {
                     JSONObject jsonObject = new JSONObject(response);
@@ -87,17 +91,25 @@ public class RespondFragment extends Fragment {
 
                     try {
                         for (int i = 0; i < items.length(); i++) {
-                            tempStr = "";
+                            tempStr = String.valueOf(i);
+                            ArrayList<String> data = new ArrayList<String>();
                             JSONObject request = items.getJSONObject(i);
 
+                            data.add(request.getString("request_id"));
                             if (request.get("comments").equals("")){
-                                tempStr += "No description included \n";
+                                data.add("No description included");
                             }
                             else{
-                                tempStr += request.getString("comments") + "\n";
+                                data.add(request.getString("comments"));
                             }
-                            tempStr += request.get("type_of_emergency") + "\n Requested by " + request.getString("requester_username");
-                            data.add(tempStr);
+                            data.add(request.getString("type_of_emergency"));
+                            data.add("Requested by: " + request.getString("requester_username"));
+
+                            data.add(request.getString("latitude"));
+                            data.add(request.getString("longtitude"));
+
+                            sendData.add(tempStr);
+                            allData.put(tempStr, data);
                         }
                         Toast.makeText(getActivity(), "Active requests updated", Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
@@ -109,11 +121,8 @@ public class RespondFragment extends Fragment {
                     Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
                 }
 
-                mylistadapter my = new mylistadapter(getActivity(),R.layout.test,data);
-
-                //zongweilist.setAdapter(new ArrayAdapter<>(getActivity(),R.layout.zongwei_listview_detail,items));
-                zongweilist.setAdapter(my);
-
+                mylistadapter my = new mylistadapter(getActivity(),R.layout.listview_item,sendData);
+                requestListView.setAdapter(my);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -150,12 +159,36 @@ public class RespondFragment extends Fragment {
                convertView = inflate.inflate(layout,parent,false);
                ViewHolder vh =new ViewHolder();
                vh.button = (Button) convertView.findViewById(R.id.button2);
-               vh.desc = (TextView) convertView.findViewById(R.id.testview);
-               vh.desc.setText(getItem(position).toString());
+               vh.desc = (TextView) convertView.findViewById(R.id.textViewDesc);
+               vh.type = (TextView) convertView.findViewById(R.id.textViewType);
+               vh.req = (TextView) convertView.findViewById(R.id.textViewRequest);
+               vh.dist = (TextView) convertView.findViewById(R.id.textViewDist);
+               ArrayList<String> curData = allData.get(String.valueOf(position));
+               vh.desc.setText(curData.get(1));
+               vh.type.setText(curData.get(2));
+               vh.req.setText(curData.get(3));
+
+               double lat1 = lastKnownLocation.getLatitude();
+               double lon1 = lastKnownLocation.getLongitude();
+               double lat2 = Double.parseDouble(curData.get(4));
+               double lon2 = Double.parseDouble(curData.get(5));
+
+               int R = 6371; // km
+               double φ1 = lat1 * Math.PI/180; // φ, λ in radians
+               double φ2 = lat2 * Math.PI/180;
+               double Δφ = (lat2-lat1) * Math.PI/180;
+               double Δλ = (lon2-lon1) * Math.PI/180;
+               double a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+               double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+               double dist = (R * c)*1000; // in metres
+               double roundOffDist = Math.round(dist * 100.0) / 100.0;
+
+               vh.dist.setText(String.valueOf(roundOffDist) + "m");
+
                vh.button.setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View view) {
-                       Toast.makeText(getContext(),"working" + position,Toast.LENGTH_SHORT).show();
+                       updateCounter(getContext(), String.valueOf(position));
                    }
                });
                convertView.setTag(vh);
@@ -166,6 +199,52 @@ public class RespondFragment extends Fragment {
 
             return convertView;
         }
+    }
+
+    private void updateCounter(Context context, String position){
+        ServerClass serverClass = new ServerClass();
+
+        String id = allData.get(position).get(0);
+        Integer requestId = Integer.valueOf(id);
+
+        String incrementNumOfResponderSql = "UPDATE request " +
+                "SET num_of_responder = 1 + (SELECT num_of_responder FROM request WHERE request_id = "+requestId+")" +
+                "WHERE request_id = "+requestId;
+
+        RequestQueue mRequestQueue = Volley.newRequestQueue(context);
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                ArrayList<String> curData = allData.get(String.valueOf(position));
+                LatLng destination = new LatLng(Double.parseDouble(curData.get(4)), Double.parseDouble(curData.get(5)));
+                getPath(destination);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("sql", incrementNumOfResponderSql);
+
+                return params;
+            }
+        };
+
+        mStringRequest.setShouldCache(false);
+        mRequestQueue.add(mStringRequest);
+    }
+
+    // Get path function
+    private void getPath(LatLng destination){
+        LatLng origin;
+        origin = new LatLng(lastKnownLocation.getLatitude(),lastKnownLocation.getLongitude());
+        String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin.latitude + "," + origin.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&travelmode=walking";
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(intent);
     }
 
     @SuppressLint("MissingPermission")
@@ -193,6 +272,9 @@ public class RespondFragment extends Fragment {
 
     public class ViewHolder{
         TextView desc;
+        TextView type;
+        TextView req;
+        TextView dist;
         Button button;
     }
 }

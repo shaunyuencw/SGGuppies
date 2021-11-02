@@ -40,6 +40,7 @@
     <string name="help_sos">HELP SOS</string>
 
     <!-- Respond Fragment Strings -->
+    <string name="respond_info">Accepting a request will navigate you to that location.</string>
     <string-array name="HelpReq">
         <item>Man Dying at YunanGarden</item>
         <item>Cardiac Arrest at SouthSpine</item>
