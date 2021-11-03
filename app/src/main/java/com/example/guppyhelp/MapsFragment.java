@@ -132,21 +132,13 @@ public class MapsFragment extends Fragment {
                     Snackbar.make(getView(), "Please allow Location Access", Snackbar.LENGTH_SHORT).show();
                 }
             }
-
-            if(isLocationEnabled(getActivity()) == true)
-            {
-                // When map is loaded, camera to current location
-                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                    @Override
-                    public void onMapLoaded() {
-                        myLocationButton.performClick();
-                    }
-                });
-            }
-            else
-            {
-                Snackbar.make(getView(), "Please enable Location", Snackbar.LENGTH_SHORT).show();
-            }
+            // When map is loaded, camera to current location
+            googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    myLocationButton.performClick();
+                }
+            });
         }
     };
 
@@ -163,11 +155,6 @@ public class MapsFragment extends Fragment {
                     }
                 }
             });
-
-    private boolean isLocationEnabled(Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        return LocationManagerCompat.isLocationEnabled(locationManager);
-    }
 
     private void showAEDDetails(Marker marker){
         // Increase AED icon size
