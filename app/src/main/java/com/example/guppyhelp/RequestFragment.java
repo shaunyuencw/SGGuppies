@@ -9,6 +9,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Handler;
 import android.util.Log;
@@ -56,7 +57,7 @@ public class RequestFragment extends Fragment {
     Runnable runnableanim;
     String username;
     private Location lastKnownLocation = null;
-
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,6 +71,16 @@ public class RequestFragment extends Fragment {
         TextView ready = (TextView) rootView2.findViewById(R.id.readystatus);
         TextView noresponder= (TextView) rootView2.findViewById(R.id.noresponders);
         TextView num = (TextView) rootView2.findViewById(R.id.numberresponded);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView2.findViewById(R.id.refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                getRequestDetail(getContext());
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         num.setVisibility(View.GONE);
         responded.setVisibility(View.GONE);

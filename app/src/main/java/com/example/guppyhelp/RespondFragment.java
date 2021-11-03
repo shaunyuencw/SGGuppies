@@ -11,6 +11,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +47,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class RespondFragment extends Fragment {
     ListView requestListView;
     private ArrayList<String> sendData = new ArrayList<String>();
@@ -53,7 +57,14 @@ public class RespondFragment extends Fragment {
     EditText comment;
     String person = null;
     private Location lastKnownLocation = null;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    String[] ListElements = new String[] {
+            "Man dying",
+            "Man Dieded",
+            "Man in Heaven liao",
+    };
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -63,7 +74,16 @@ public class RespondFragment extends Fragment {
         requestListView = (ListView) rootView.findViewById(R.id.SOSList2);
         person = getActivity().getIntent().getExtras().getString("username");
         getLastLocation();
-
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh2);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipeRefreshLayout.setRefreshing(true);
+                requestListView.setAdapter(null);
+                getNDisplayRequests(getActivity());
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
         return rootView;
     }
 
