@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,8 +29,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -130,13 +133,20 @@ public class MapsFragment extends Fragment {
                 }
             }
 
-            // When map is loaded, camera to current location
-            googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    myLocationButton.performClick();
-                }
-            });
+            if(isLocationEnabled(getActivity()) == true)
+            {
+                // When map is loaded, camera to current location
+                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        myLocationButton.performClick();
+                    }
+                });
+            }
+            else
+            {
+                Snackbar.make(getView(), "Please enable Location", Snackbar.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -154,6 +164,10 @@ public class MapsFragment extends Fragment {
                 }
             });
 
+    private boolean isLocationEnabled(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        return LocationManagerCompat.isLocationEnabled(locationManager);
+    }
 
     private void showAEDDetails(Marker marker){
         // Increase AED icon size

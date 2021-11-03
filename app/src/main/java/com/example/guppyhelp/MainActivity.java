@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         tabs.setupWithViewPager(viewPager);
         LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
         dark.setVisibility(View.INVISIBLE);
-
     }
 
 

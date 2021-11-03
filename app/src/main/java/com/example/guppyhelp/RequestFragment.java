@@ -71,12 +71,13 @@ public class RequestFragment extends Fragment {
         TextView ready = (TextView) rootView2.findViewById(R.id.readystatus);
         TextView noresponder= (TextView) rootView2.findViewById(R.id.noresponders);
         TextView num = (TextView) rootView2.findViewById(R.id.numberresponded);
-
+        Handler hand = new Handler();
         mSwipeRefreshLayout = (SwipeRefreshLayout) rootView2.findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 mSwipeRefreshLayout.setRefreshing(true);
+                hand.removeCallbacks(runnableanim);
                 getRequestDetail(getContext());
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -86,7 +87,7 @@ public class RequestFragment extends Fragment {
         responded.setVisibility(View.GONE);
         noresponder.setVisibility(View.GONE);
         ready.setVisibility(View.VISIBLE);
-        Handler hand = new Handler();
+
         runnableanim = new Runnable() {
             @Override
             public void run() {

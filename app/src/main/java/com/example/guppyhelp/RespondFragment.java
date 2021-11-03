@@ -58,12 +58,6 @@ public class RespondFragment extends Fragment {
     String person = null;
     private Location lastKnownLocation = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    String[] ListElements = new String[] {
-            "Man dying",
-            "Man Dieded",
-            "Man in Heaven liao",
-    };
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,6 +74,8 @@ public class RespondFragment extends Fragment {
             public void onRefresh() {
                 mSwipeRefreshLayout.setRefreshing(true);
                 requestListView.setAdapter(null);
+                sendData = new ArrayList<String>();
+                allData = new HashMap<>();
                 getNDisplayRequests(getActivity());
                 mSwipeRefreshLayout.setRefreshing(false);
             }
