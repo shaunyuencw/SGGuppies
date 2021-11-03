@@ -214,6 +214,7 @@ public class MapsFragment extends Fragment {
                 intentAEDDetails.putExtra("id", lastAccessedMarker.getTitle());
                 intentAEDDetails.putExtra("person", person);
                 someActivityResultLauncher.launch(intentAEDDetails);
+                someActivityResultLauncher.launch(intentAEDDetails);
             }
         });
         TextView navigateButton = popupView.findViewById(R.id.pop_navigateButton);
@@ -270,7 +271,8 @@ public class MapsFragment extends Fragment {
         } else {
             get_aed_SQL = "SELECT objectid, longtitude, latitude, building_n, aed_loca_1, operating_, status " +
                     "FROM aedlocation " +
-                    "WHERE SQRT(POW(69.1 * (LATITUDE - "+lat+"), 2) + POW(69.1 * ("+lng+" - LONGTITUDE) * COS(LATITUDE / 57.3), 2)) <= 0.124274";
+                    "WHERE SQRT(POW(69.1 * (LATITUDE - "+lat+"), 2) + POW(69.1 * ("+lng+" - LONGTITUDE) * COS(LATITUDE / 57.3), 2)) <= 0.124274" +
+                    "AND status = 'Available'";
         }
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
