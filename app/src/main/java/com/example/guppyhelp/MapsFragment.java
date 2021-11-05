@@ -137,7 +137,7 @@ public class MapsFragment extends Fragment {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 18.0f));
         String markerSnippet = marker.getSnippet();
         assert markerSnippet != null;
-        List<String> markerInfo = Arrays.asList(markerSnippet.split("&"));
+        List<String> markerInfo = Arrays.asList(markerSnippet.split("~"));
         String status = markerInfo.get(3);
         switch (status) {
             case "Available":
@@ -214,7 +214,7 @@ public class MapsFragment extends Fragment {
         if (lastAccessedMarker != null){
             String markerSnippet = lastAccessedMarker.getSnippet();
             assert markerSnippet != null;
-            String status = Arrays.asList(markerSnippet.split("&")).get(3);
+            String status = Arrays.asList(markerSnippet.split("~")).get(3);
 
             switch (status) {
                 case "Available":
@@ -260,7 +260,7 @@ public class MapsFragment extends Fragment {
 
                         MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
                                 .title(aed.getString("objectid"))
-                                .snippet(aed.getString("building_n") + "&" + aed.getString("aed_loca_1") + "&" + aed.getString("operating_") + "&" + aed.getString("status"));
+                                .snippet(aed.getString("building_n") + "~" + aed.getString("aed_loca_1") + "~" + aed.getString("operating_") + "~" + aed.getString("status"));
 
                         if (aed.getString("status").equals("Pending")){
                             markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon));
