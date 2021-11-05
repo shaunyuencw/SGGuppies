@@ -54,7 +54,7 @@ public class RespondFragment extends Fragment {
     ListView requestListView;
     private ArrayList<String> sendData = new ArrayList<String>();
     private HashMap<String, ArrayList<String>> allData = new HashMap<>();
-    EditText comment;
+    final boolean[] isStillRefreshing = {false};
     String person = null;
     private Location lastKnownLocation = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -72,12 +72,18 @@ public class RespondFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mSwipeRefreshLayout.setRefreshing(true);
-                requestListView.setAdapter(null);
-                sendData = new ArrayList<String>();
-                allData = new HashMap<>();
-                getNDisplayRequests(getActivity());
-                mSwipeRefreshLayout.setRefreshing(false);
+                if(!isStillRefreshing[0]){
+                    isStillRefreshing[0] = true;
+                    mSwipeRefreshLayout.setRefreshing(true);
+                    requestListView.setAdapter(null);
+                    sendData = new ArrayList<String>();
+                    allData = new HashMap<>();
+                    getNDisplayRequests(getActivity());
+                    mSwipeRefreshLayout.setRefreshing(false);
+                } else {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    return;
+                }
             }
         });
         return rootView;
@@ -126,6 +132,8 @@ public class RespondFragment extends Fragment {
 
                             sendData.add(tempStr);
                             allData.put(tempStr, data);
+
+                            isStillRefreshing[0] = false;
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();

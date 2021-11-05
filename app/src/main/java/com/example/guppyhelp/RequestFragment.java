@@ -54,6 +54,7 @@ public class RequestFragment extends Fragment {
     static PopupWindow popupWindow = null;
     boolean SOS = false;
 
+    final boolean[] isStillRefreshing = {false};
     Runnable runnableanim;
     String username;
     private Location lastKnownLocation = null;
@@ -65,7 +66,6 @@ public class RequestFragment extends Fragment {
         getRequestDetail(getContext());
 
         View rootView2 = inflater.inflate(R.layout.fragment_request, container, false);
-        View rootView3 = inflater.inflate(R.layout.request_confirmation, container, false);
         ImageView anim = (ImageView) rootView2.findViewById(R.id.imgAnimation1);
         TextView responded = (TextView) rootView2.findViewById(R.id.responded);
         TextView ready = (TextView) rootView2.findViewById(R.id.readystatus);
@@ -76,10 +76,16 @@ public class RequestFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mSwipeRefreshLayout.setRefreshing(true);
-                hand.removeCallbacks(runnableanim);
-                getRequestDetail(getContext());
-                mSwipeRefreshLayout.setRefreshing(false);
+                if(!isStillRefreshing[0]){
+                    isStillRefreshing[0] = true;
+                    mSwipeRefreshLayout.setRefreshing(true);
+                    hand.removeCallbacks(runnableanim);
+                    getRequestDetail(getContext());
+                    mSwipeRefreshLayout.setRefreshing(false);
+                } else {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    return;
+                }
             }
         });
 
@@ -317,11 +323,10 @@ public class RequestFragment extends Fragment {
                     JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
                     JSONArray items = messageObject.getJSONArray("data");
 
-                    // Will show error if theres no current Request from this user
                     String numOfResponder = items.getJSONObject(0).getString("num_of_responder");
                     ((TextView) getView().findViewById(R.id.numberresponded)).setText(numOfResponder);
                     sentSOSUI();
-
+                    isStillRefreshing[0] = false;
                 } catch (JSONException e) {
                     Log.e("Debug", response);
                 }
