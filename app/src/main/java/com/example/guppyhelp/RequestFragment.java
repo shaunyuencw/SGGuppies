@@ -253,7 +253,6 @@ public class RequestFragment extends Fragment {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.MINUTE, -30);
-        c.add(Calendar.HOUR, 8);
         Date bef30dateTime = c.getTime();
         String bef30dateTimeStr = df.format(bef30dateTime);
 
@@ -274,7 +273,7 @@ public class RequestFragment extends Fragment {
                 sentSOSUI();
                 isStillRefreshing[0] = false;
             } catch (JSONException e) {
-                Log.e("Debug", response);
+                Log.e("Debug", get_request_detail_sql);
             }
 
         }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
