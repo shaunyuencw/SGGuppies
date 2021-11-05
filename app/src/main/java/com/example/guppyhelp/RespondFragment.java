@@ -127,7 +127,6 @@ public class RespondFragment extends Fragment {
                             sendData.add(tempStr);
                             allData.put(tempStr, data);
                         }
-                        Toast.makeText(getActivity(), "Active requests updated", Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
