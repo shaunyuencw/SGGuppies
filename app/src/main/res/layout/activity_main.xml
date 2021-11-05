@@ -47,7 +47,7 @@
                 android:layout_marginBottom="10dp"
                 android:width="150dp"
                 android:ellipsize="end"
-                android:gravity="center|left"
+                android:gravity="center|right"
                 android:maxLines="1"
                 android:text="Hello, "
                 android:textColorHint="@color/colorPrimaryWhite"
