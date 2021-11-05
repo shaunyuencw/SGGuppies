@@ -65,7 +65,7 @@ public class RespondFragment extends Fragment {
                 requestListView.setAdapter(null);
                 sendData = new ArrayList<>();
                 allData = new HashMap<>();
-                getNDisplayRequests(getActivity());
+                getLastLocation();
             }
             mSwipeRefreshLayout.setRefreshing(false);
         });
@@ -239,8 +239,8 @@ public class RespondFragment extends Fragment {
                 // GPS location can be null if GPS is switched off
                 if (location != null) {
                     lastKnownLocation = location;
+                    getNDisplayRequests(getActivity());
                 }
-                getNDisplayRequests(getActivity());
             })
             .addOnFailureListener(e -> {
                 Log.d("MapDemoActivity", "Error trying to get last GPS location");
