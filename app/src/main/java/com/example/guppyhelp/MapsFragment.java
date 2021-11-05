@@ -78,6 +78,7 @@ public class MapsFragment extends Fragment {
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
+        @SuppressLint("ResourceType")
         @Override
         public void onMapReady(final GoogleMap googleMap) {
             map = googleMap;
@@ -110,32 +111,36 @@ public class MapsFragment extends Fragment {
 
             // Get myLocationButton
             SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            @SuppressLint("ResourceType") final View myLocationButton = mapFragment.getView().findViewById(0x2);
-            // Change myLocationButton position
-            RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) myLocationButton.getLayoutParams();
-            rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,0);
-            rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE);
-            rlp.setMargins(0,0,30,30);
+            if (mapFragment != null && mapFragment.getView() != null && mapFragment.getView().findViewById(0x2) != null){
 
-            // Check if permission granted, enable setMyLocation & setMyLocationButton
-            if(checkAndRequestPermissions()) {
-                if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED &&
-                        ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                                PackageManager.PERMISSION_GRANTED) {
-                    googleMap.setMyLocationEnabled(true);
-                    googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                } else {
-                    Snackbar.make(getView(), "Please allow Location Access", Snackbar.LENGTH_SHORT).show();
+                @SuppressLint("ResourceType") final View myLocationButton = mapFragment.getView().findViewById(0x2);
+                // Change myLocationButton position
+                RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) myLocationButton.getLayoutParams();
+                rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP,0);
+                rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM,RelativeLayout.TRUE);
+                rlp.setMargins(0,0,30,30);
+
+                // Check if permission granted, enable setMyLocation & setMyLocationButton
+                if(checkAndRequestPermissions()) {
+                    if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                            PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                                    PackageManager.PERMISSION_GRANTED) {
+                        googleMap.setMyLocationEnabled(true);
+                        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                    } else {
+                        Snackbar.make(getView(), "Please allow Location Access", Snackbar.LENGTH_SHORT).show();
+                    }
                 }
+                // When map is loaded, camera to current location
+                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    @Override
+                    public void onMapLoaded() {
+                        myLocationButton.performClick();
+                    }
+                });
             }
-            // When map is loaded, camera to current location
-            googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                @Override
-                public void onMapLoaded() {
-                    myLocationButton.performClick();
-                }
-            });
+
         }
     };
 
@@ -301,6 +306,7 @@ public class MapsFragment extends Fragment {
 
                             map.addMarker(markerOptions);
                         }
+                        ((MainActivity)getActivity()).toggleBool();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -356,8 +362,11 @@ public class MapsFragment extends Fragment {
                         if (location != null) {
                             lastKnownLocation = location;
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 18.0f));
-                            // Get AED from DB
-                            get_aed_info(getActivity());
+                            if(!((MainActivity)getActivity()).getBool()){
+                                ((MainActivity)getActivity()).toggleBool();
+                                // Get AED from DB
+                                get_aed_info(getActivity());
+                            }
                         }
                     }
                 })

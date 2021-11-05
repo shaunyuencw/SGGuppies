@@ -39,6 +39,18 @@ public class MainActivity extends AppCompatActivity {
     Calendar calender;
     SimpleDateFormat simpledateformat;
     String Date;
+    static boolean tabCooldown = false;
+
+    public boolean getBool(){
+        return tabCooldown;
+    }
+    public void toggleBool(){
+        if(tabCooldown){
+            tabCooldown = false;
+        } else {
+            tabCooldown = true;
+        }
+    }
 
     boolean SOS = false;
     @Override
