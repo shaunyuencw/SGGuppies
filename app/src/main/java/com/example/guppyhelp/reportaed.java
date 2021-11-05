@@ -148,22 +148,4 @@ public class reportaed extends AppCompatActivity {
             }
         }
     }
-    /*private void selectImage() {
-        final CharSequence[] options = {"Choose from Gallery", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(reportaed.this);
-        builder.setTitle("Add Photo!");
-        builder.setItems(options, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                if (options[item].equals("Choose from Gallery")) {
-                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(intent, 2);
-                } else if (options[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
-    }*/
-
 }

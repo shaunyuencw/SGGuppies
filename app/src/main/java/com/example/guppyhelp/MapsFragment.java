@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,10 +28,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.location.LocationManagerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -214,7 +211,6 @@ public class MapsFragment extends Fragment {
                 intentAEDDetails.putExtra("id", lastAccessedMarker.getTitle());
                 intentAEDDetails.putExtra("person", person);
                 someActivityResultLauncher.launch(intentAEDDetails);
-                someActivityResultLauncher.launch(intentAEDDetails);
             }
         });
         TextView navigateButton = popupView.findViewById(R.id.pop_navigateButton);
@@ -348,25 +344,6 @@ public class MapsFragment extends Fragment {
         String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin.latitude + "," + origin.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&travelmode=walking";
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(intent);
-        /*if(lastKnownLocation != null) {
-            // Instantiates a new Polyline object and adds points to define a rectangle
-            PolylineOptions polylineOptions = new PolylineOptions()
-                    .add(new LatLng(origin.latitude, origin.longitude))
-                    .add(new LatLng(destination.latitude, destination.longitude))
-                    .color(Color.CYAN);  // North of the previous point, but at the same longitude
-                    // Closes the polyline.
-
-            // Get back the mutable Polyline
-            if(polyline != null)
-            {
-                polyline.remove();
-            }
-            polyline = map.addPolyline(polylineOptions);
-            closeAEDDetailPanel(marker);
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 16.0f));
-        }*/
-        //String text = Double.toString(origin.longitude) + " " + Double.toString(origin.latitude);
-        //Snackbar.make(getView(), text, Snackbar.LENGTH_SHORT).show();
     }
 
     @SuppressLint("MissingPermission")
