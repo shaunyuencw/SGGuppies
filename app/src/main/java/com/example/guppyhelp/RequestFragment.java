@@ -203,6 +203,7 @@ public class RequestFragment extends Fragment {
 
         closePopupWindow();
 
+        Comments = Comments.replaceAll("['\"\\\\]", "\\\\$0");
         // requester_username, request_datetime, comments, type_of_emergency,
         // field_location, LONGTITUDE, LATITUDE
         String submit_request = "INSERT INTO request(requester_username, request_datetime, comments, type_of_emergency, field_location, LONGTITUDE, LATITUDE) " +
