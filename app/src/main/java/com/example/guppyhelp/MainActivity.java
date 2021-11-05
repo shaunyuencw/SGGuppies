@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ((TextView) findViewById(R.id.textViewUsername)).setText("Hi, "+getIntent().getExtras().getString("username"));
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
@@ -53,35 +54,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
         dark.setVisibility(View.INVISIBLE);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //private Runnable runnableanim = new Runnable(){
-      //  @Override
-     //   public void run() {
-       //     anim.animate().scaleX(4f).scaleY(4f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
-
-          //      @Override
-           //     public void run(){
-              //      anim.setScaleX(1f);
-             //       anim.setScaleY(1f);
-               //     anim.setAlpha(1f);
-              //  }
-           // });
-         //   hand.postDelayed(runnableanim,1500);
-       // }
-    //};
-
 
 }
 

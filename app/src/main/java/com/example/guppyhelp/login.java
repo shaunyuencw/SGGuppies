@@ -44,25 +44,34 @@ public class login extends AppCompatActivity {
         TextView password = (TextView) findViewById(R.id.password);
 
         Button login = (Button) findViewById(R.id.login);
-        // Check if permission granted, enable setMyLocation & setMyLocationButton
-        if(checkAndRequestPermissions()) {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                    PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                            PackageManager.PERMISSION_GRANTED) {
-            } else {
-                Toast.makeText(this, "Please allow location access", Toast.LENGTH_SHORT).show();
-            }
-        }
-        if(isLocationEnabled(this) == false)
-        {
-            turnGPSOn();
-        }
-        else{
-            //admin
-            login.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean permission = false;
+                boolean gps = false;
+                // Check if permission granted, enable setMyLocation & setMyLocationButton
+                if(checkAndRequestPermissions()) {
+                    if (ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                            PackageManager.PERMISSION_GRANTED &&
+                            ContextCompat.checkSelfPermission(getBaseContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+                                    PackageManager.PERMISSION_GRANTED) {
+                        permission = true;
+                    } else {
+                        Toast.makeText(getBaseContext(), "Please allow location access", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+
+                }
+
+                if(isLocationEnabled(getBaseContext()) == false)
+                {
+                    turnGPSOn();
+                } else {
+                    gps = true;
+                }
+
+                if(gps && permission){
                     if(email.getText().toString().equals("admin") && password.getText().toString().equals("123")){
                         //correct account
                         person = "admin";
@@ -75,8 +84,9 @@ public class login extends AppCompatActivity {
                         Snackbar.make(view, "YOU SHALL NOT PASS!!!", Snackbar.LENGTH_SHORT).show();
                     }
                 }
-            });
-        }
+            }
+        });
+
     }
     public void openActivity()
     {
