@@ -1,7 +1,6 @@
 package com.example.guppyhelp;
 
 import android.content.Context;
-import com.example.guppyhelp.R;
 
 public class ServerClass {
     private static String getBaseURL(Context context){

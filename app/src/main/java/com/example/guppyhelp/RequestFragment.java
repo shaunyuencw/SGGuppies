@@ -3,11 +3,8 @@ package com.example.guppyhelp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -26,17 +23,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,6 +51,7 @@ public class RequestFragment extends Fragment {
     String username;
     private Location lastKnownLocation = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -66,27 +59,21 @@ public class RequestFragment extends Fragment {
         getRequestDetail(getContext());
 
         View rootView2 = inflater.inflate(R.layout.fragment_request, container, false);
-        ImageView anim = (ImageView) rootView2.findViewById(R.id.imgAnimation1);
-        TextView responded = (TextView) rootView2.findViewById(R.id.responded);
-        TextView ready = (TextView) rootView2.findViewById(R.id.readystatus);
-        TextView noresponder= (TextView) rootView2.findViewById(R.id.noresponders);
-        TextView num = (TextView) rootView2.findViewById(R.id.numberresponded);
+        ImageView anim = rootView2.findViewById(R.id.imgAnimation1);
+        TextView responded = rootView2.findViewById(R.id.responded);
+        TextView ready = rootView2.findViewById(R.id.readystatus);
+        TextView noresponder= rootView2.findViewById(R.id.noresponders);
+        TextView num = rootView2.findViewById(R.id.numberresponded);
         Handler hand = new Handler();
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView2.findViewById(R.id.refresh);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if(!isStillRefreshing[0]){
-                    isStillRefreshing[0] = true;
-                    mSwipeRefreshLayout.setRefreshing(true);
-                    hand.removeCallbacks(runnableanim);
-                    getRequestDetail(getContext());
-                    mSwipeRefreshLayout.setRefreshing(false);
-                } else {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    return;
-                }
+        mSwipeRefreshLayout = rootView2.findViewById(R.id.refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(() -> {
+            if(!isStillRefreshing[0]){
+                isStillRefreshing[0] = true;
+                mSwipeRefreshLayout.setRefreshing(true);
+                hand.removeCallbacks(runnableanim);
+                getRequestDetail(getContext());
             }
+            mSwipeRefreshLayout.setRefreshing(false);
         });
 
         num.setVisibility(View.GONE);
@@ -97,112 +84,96 @@ public class RequestFragment extends Fragment {
         runnableanim = new Runnable() {
             @Override
             public void run() {
-                anim.animate().scaleX(6f).scaleY(6f).alpha(0f).setDuration(1000).withEndAction(new Runnable(){
-
-                    @Override
-                    public void run(){
-                        anim.setScaleX(1f);
-                        anim.setScaleY(1f);
-                        anim.setAlpha(1f);
-                    }
+                anim.animate().scaleX(6f).scaleY(6f).alpha(0f).setDuration(1000).withEndAction(() -> {
+                    anim.setScaleX(1f);
+                    anim.setScaleY(1f);
+                    anim.setAlpha(1f);
                 });
                 hand.postDelayed(this, 1500);
             }
         };
 
-        Button sos = (Button) rootView2.findViewById(R.id.SOSButton);
+        Button sos = rootView2.findViewById(R.id.SOSButton);
 
-        sos.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        sos.setOnClickListener(view -> {
 
-                View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
-                Spinner mySpinner = (Spinner) popupView.findViewById(R.id.emergency_type);
-                Button requestbutton = (Button) rootView2.findViewById(R.id.SOSButton);
-                Button accept = (Button) popupView.findViewById(R.id.acceptrequestbutton);
-                ImageView cancel = (ImageView) popupView.findViewById(R.id.cancelreq);
+            @SuppressLint("InflateParams") View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
+            Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
+            @SuppressLint("CutPasteId") Button requestbutton = rootView2.findViewById(R.id.SOSButton);
+            Button accept = popupView.findViewById(R.id.acceptrequestbutton);
+            ImageView cancel = popupView.findViewById(R.id.cancelreq);
 
-                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                boolean focusable = false; // lets taps outside the popup also dismiss it
+            int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
 
-                if(SOS == false){
-                    if(popupWindow == null){
-                        popupWindow = new PopupWindow(popupView, width, height, focusable);
-                        popupWindow.setOutsideTouchable(false);
-                        LinearLayout dark = (LinearLayout) getActivity().findViewById(R.id.darkfilter);
-                        dark.setVisibility(View.VISIBLE);
-                        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-                        popupWindow.setFocusable(true);
-                        popupWindow.setOutsideTouchable(true);
-                        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                            @Override
-                            public void onDismiss() {
-                                popupWindow = null;
-                                dark.setVisibility(View.INVISIBLE);
-                            }
-                        });
-                        popupWindow.update();
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(popupView.getContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.emergencytypes));
-                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        mySpinner.setAdapter(adapter);
-                    }
-                }
-                else{
-                    //change to SOS button
-                    requestbutton.setText("SOS");
-
-                    ready.setVisibility(View.VISIBLE);
-                    responded.setVisibility(View.GONE);
-                    noresponder.setVisibility(View.GONE);
-                    num.setVisibility(View.GONE);
-                    SOS = false;
-                    hand.removeCallbacks(runnableanim);
-
-                    // Update request status
-                    stop_request(getContext());
-                }
-
-                accept.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // Change UI
-                        sentSOSUI();
-
-                        LinearLayout dark = (LinearLayout) getActivity().findViewById(R.id.darkfilter);
+            if(!SOS){
+                if(popupWindow == null){
+                    popupWindow = new PopupWindow(popupView, width, height, false);
+                    popupWindow.setOutsideTouchable(false);
+                    LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
+                    dark.setVisibility(View.VISIBLE);
+                    popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+                    popupWindow.setFocusable(true);
+                    popupWindow.setOutsideTouchable(true);
+                    popupWindow.setOnDismissListener(() -> {
+                        popupWindow = null;
                         dark.setVisibility(View.INVISIBLE);
-
-                        // Get location and update DB
-                        getLastLocation();
-                    }
-                });
-
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(popupWindow!=null) {
-                            popupWindow.dismiss();
-                            popupWindow = null;
-                            LinearLayout dark = (LinearLayout) getActivity().findViewById(R.id.darkfilter);
-                            dark.setVisibility(View.INVISIBLE);
-                            Button requestbutton = (Button) getActivity().findViewById(R.id.SOSButton);
-                            requestbutton.setText("SOS");
-                            SOS = false;
-                        }
-                    }
-                });
+                    });
+                    popupWindow.update();
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(popupView.getContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.emergencytypes));
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    mySpinner.setAdapter(adapter);
+                }
             }
+            else{
+                //change to SOS button
+                requestbutton.setText("SOS");
+
+                ready.setVisibility(View.VISIBLE);
+                responded.setVisibility(View.GONE);
+                noresponder.setVisibility(View.GONE);
+                num.setVisibility(View.GONE);
+                SOS = false;
+                hand.removeCallbacks(runnableanim);
+
+                // Update request status
+                stop_request(getContext());
+            }
+
+            accept.setOnClickListener(view12 -> {
+                // Change UI
+                sentSOSUI();
+
+                LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
+                dark.setVisibility(View.INVISIBLE);
+
+                // Get location and update DB
+                getLastLocation();
+            });
+
+            cancel.setOnClickListener(view1 -> {
+                if(popupWindow!=null) {
+                    popupWindow.dismiss();
+                    popupWindow = null;
+                    LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
+                    dark.setVisibility(View.INVISIBLE);
+                    Button requestbutton1 = getActivity().findViewById(R.id.SOSButton);
+                    requestbutton1.setText("SOS");
+                    SOS = false;
+                }
+            });
         });
 
         return rootView2;
     }
 
+    @SuppressLint("SetTextI18n")
     private void sentSOSUI(){
-        TextView responded = (TextView) getView().findViewById(R.id.responded);
-        TextView ready = (TextView) getView().findViewById(R.id.readystatus);
-        TextView noresponder= (TextView) getView().findViewById(R.id.noresponders);
-        TextView num = (TextView) getView().findViewById(R.id.numberresponded);
-        Button requestbutton = (Button) getView().findViewById(R.id.SOSButton);
+        TextView responded = getView().findViewById(R.id.responded);
+        TextView ready = getView().findViewById(R.id.readystatus);
+        TextView noresponder= getView().findViewById(R.id.noresponders);
+        TextView num = getView().findViewById(R.id.numberresponded);
+        Button requestbutton = getView().findViewById(R.id.SOSButton);
 
         requestbutton.setText("Stop");
         SOS = true;
@@ -219,16 +190,14 @@ public class RequestFragment extends Fragment {
     }
 
     private void submit_request(Context context){
-        ServerClass serverClass = new ServerClass();
-
         Date date = new Date();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("GMT+8"));
         String curDateTime = df.format(date);
 
         View popupView = popupWindow.getContentView();
-        TextView comments = (TextView) popupView.findViewById(R.id.comments);
-        Spinner mySpinner = (Spinner) popupView.findViewById(R.id.emergency_type);
+        TextView comments = popupView.findViewById(R.id.comments);
+        Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
         String Comments = comments.getText().toString();
         String type = mySpinner.getSelectedItem().toString();
 
@@ -241,19 +210,9 @@ public class RequestFragment extends Fragment {
                 ""+null+", "+lastKnownLocation.getLongitude()+", "+lastKnownLocation.getLatitude()+")";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> ((TextView) getView().findViewById(R.id.numberresponded)).setText("0"), error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onResponse(String response) {
-                ((TextView) getView().findViewById(R.id.numberresponded)).setText("0");
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("sql", submit_request);
 
@@ -266,26 +225,16 @@ public class RequestFragment extends Fragment {
     }
 
     private void stop_request(Context context){
-        ServerClass serverClass = new ServerClass();
-
         String stop_request_sql = "UPDATE request " +
                 "SET status = 'Completed' " +
                 "WHERE requester_username = '"+username+"' AND status = 'Active'";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
+            // Request completed
+        }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onResponse(String response) {
-                // Request completed
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("sql", stop_request_sql);
 
@@ -298,10 +247,8 @@ public class RequestFragment extends Fragment {
     }
 
     private void getRequestDetail(Context context){
-        ServerClass serverClass = new ServerClass();
-
         Date date = new Date();
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.MINUTE, -30);
@@ -314,32 +261,24 @@ public class RequestFragment extends Fragment {
                 "WHERE requester_username = '"+username+"' AND status = 'Active' AND request_datetime > '"+bef30dateTimeStr+"'";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
 
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
-                    JSONArray items = messageObject.getJSONArray("data");
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
+                JSONArray items = messageObject.getJSONArray("data");
 
-                    String numOfResponder = items.getJSONObject(0).getString("num_of_responder");
-                    ((TextView) getView().findViewById(R.id.numberresponded)).setText(numOfResponder);
-                    sentSOSUI();
-                    isStillRefreshing[0] = false;
-                } catch (JSONException e) {
-                    Log.e("Debug", response);
-                }
-
+                String numOfResponder = items.getJSONObject(0).getString("num_of_responder");
+                ((TextView) getView().findViewById(R.id.numberresponded)).setText(numOfResponder);
+                sentSOSUI();
+                isStillRefreshing[0] = false;
+            } catch (JSONException e) {
+                Log.e("Debug", response);
             }
-        }, new Response.ErrorListener() {
+
+        }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("sql", get_request_detail_sql);
 
@@ -355,23 +294,16 @@ public class RequestFragment extends Fragment {
     public void getLastLocation() {
         FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationClient.getLastLocation()
-            .addOnSuccessListener(new OnSuccessListener<Location>() {
-                @RequiresApi(api = Build.VERSION_CODES.O)
-                @Override
-                public void onSuccess(Location location) {
-                    // Update lastKnownLocation + update DB
-                    if (location != null) {
-                        lastKnownLocation = location;
-                        submit_request(getContext());
-                    }
+            .addOnSuccessListener(location -> {
+                // Update lastKnownLocation + update DB
+                if (location != null) {
+                    lastKnownLocation = location;
+                    submit_request(getContext());
                 }
             })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("MapDemoActivity", "Error trying to get last GPS location");
-                    e.printStackTrace();
-                }
+            .addOnFailureListener(e -> {
+                Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                e.printStackTrace();
             });
     }
 }

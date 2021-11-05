@@ -32,10 +32,10 @@ public class login extends AppCompatActivity {
         final boolean[] buttonIsPressed = {false};
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        TextView email = (TextView) findViewById(R.id.email);
-        TextView password = (TextView) findViewById(R.id.password);
+        TextView email = findViewById(R.id.email);
+        TextView password = findViewById(R.id.password);
 
-        Button login = (Button) findViewById(R.id.login);
+        Button login = findViewById(R.id.login);
 
         login.setOnClickListener(view -> {
             if (!buttonIsPressed[0]){
@@ -86,7 +86,7 @@ public class login extends AppCompatActivity {
         } else {
             bundle.putString("person", "user");
         }
-        TextView email = (TextView) findViewById(R.id.email);
+        TextView email = findViewById(R.id.email);
         bundle.putString("username", email.getText().toString());
         intent.putExtras(bundle);
         startActivity(intent);

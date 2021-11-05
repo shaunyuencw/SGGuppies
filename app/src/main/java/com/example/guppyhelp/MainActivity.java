@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-        LinearLayout dark = (LinearLayout) findViewById(R.id.darkfilter);
+        LinearLayout dark = findViewById(R.id.darkfilter);
         dark.setVisibility(View.INVISIBLE);
     }
 

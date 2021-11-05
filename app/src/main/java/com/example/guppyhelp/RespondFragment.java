@@ -3,7 +3,6 @@ package com.example.guppyhelp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,31 +26,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class RespondFragment extends Fragment {
     ListView requestListView;
-    private ArrayList<String> sendData = new ArrayList<String>();
+    private ArrayList<String> sendData = new ArrayList<>();
     private HashMap<String, ArrayList<String>> allData = new HashMap<>();
     final boolean[] isStillRefreshing = {false};
     String person = null;
@@ -64,36 +54,27 @@ public class RespondFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_respond, container, false);
-        Resources res = getResources();
-        requestListView = (ListView) rootView.findViewById(R.id.SOSList2);
+        requestListView = rootView.findViewById(R.id.SOSList2);
         person = getActivity().getIntent().getExtras().getString("username");
         getLastLocation();
-        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.refresh2);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                if(!isStillRefreshing[0]){
-                    isStillRefreshing[0] = true;
-                    mSwipeRefreshLayout.setRefreshing(true);
-                    requestListView.setAdapter(null);
-                    sendData = new ArrayList<String>();
-                    allData = new HashMap<>();
-                    getNDisplayRequests(getActivity());
-                    mSwipeRefreshLayout.setRefreshing(false);
-                } else {
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    return;
-                }
+        mSwipeRefreshLayout = rootView.findViewById(R.id.refresh2);
+        mSwipeRefreshLayout.setOnRefreshListener(() -> {
+            if(!isStillRefreshing[0]){
+                isStillRefreshing[0] = true;
+                mSwipeRefreshLayout.setRefreshing(true);
+                requestListView.setAdapter(null);
+                sendData = new ArrayList<>();
+                allData = new HashMap<>();
+                getNDisplayRequests(getActivity());
             }
+            mSwipeRefreshLayout.setRefreshing(false);
         });
         return rootView;
     }
 
     private void getNDisplayRequests(Context context){
-        ServerClass serverClass = new ServerClass();
-
-        Double lat = lastKnownLocation.getLatitude();
-        Double lng = lastKnownLocation.getLongitude();
+        double lat = lastKnownLocation.getLatitude();
+        double lng = lastKnownLocation.getLongitude();
 
         String get_requests_sql = "SELECT request_id, requester_username, request_datetime, comments, type_of_emergency, longtitude, " +
                 "latitude, num_of_responder FROM request " +
@@ -101,60 +82,52 @@ public class RespondFragment extends Fragment {
                 "' AND SQRT(POW(69.1 * (LATITUDE - " + lat + "), 2) + POW(69.1 * (" + lng + " - LONGTITUDE) * COS(LATITUDE / 57.3), 2)) <= 0.124274";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                String tempStr;
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
+            String tempStr;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+
+                JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
+                JSONArray items = messageObject.getJSONArray("data");
+
                 try {
-                    JSONObject jsonObject = new JSONObject(response);
+                    for (int i = 0; i < items.length(); i++) {
+                        tempStr = String.valueOf(i);
+                        ArrayList<String> data = new ArrayList<>();
+                        JSONObject request = items.getJSONObject(i);
 
-                    JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
-                    JSONArray items = messageObject.getJSONArray("data");
-
-                    try {
-                        for (int i = 0; i < items.length(); i++) {
-                            tempStr = String.valueOf(i);
-                            ArrayList<String> data = new ArrayList<String>();
-                            JSONObject request = items.getJSONObject(i);
-
-                            data.add(request.getString("request_id"));
-                            if (request.get("comments").equals("")){
-                                data.add("No description included");
-                            }
-                            else{
-                                data.add(request.getString("comments"));
-                            }
-                            data.add(request.getString("type_of_emergency"));
-                            data.add("Requested by: " + request.getString("requester_username"));
-
-                            data.add(request.getString("latitude"));
-                            data.add(request.getString("longtitude"));
-
-                            sendData.add(tempStr);
-                            allData.put(tempStr, data);
-
-                            isStillRefreshing[0] = false;
+                        data.add(request.getString("request_id"));
+                        if (request.get("comments").equals("")){
+                            data.add("No description included");
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                        else{
+                            data.add(request.getString("comments"));
+                        }
+                        data.add(request.getString("type_of_emergency"));
+                        data.add("Requested by: " + request.getString("requester_username"));
 
+                        data.add(request.getString("latitude"));
+                        data.add(request.getString("longtitude"));
+
+                        sendData.add(tempStr);
+                        allData.put(tempStr, data);
+
+                        isStillRefreshing[0] = false;
+                    }
                 } catch (JSONException e) {
-                    Log.e("Debug", response);
-                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
 
-                mylistadapter my = new mylistadapter(getActivity(),R.layout.listview_item,sendData);
-                requestListView.setAdapter(my);
+            } catch (JSONException e) {
+                Log.e("Debug", response);
+                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
             }
-        }, new Response.ErrorListener() {
+
+            mylistadapter my = new mylistadapter(getActivity(),R.layout.listview_item,sendData);
+            requestListView.setAdapter(my);
+        }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("sql", get_requests_sql);
 
@@ -167,27 +140,29 @@ public class RespondFragment extends Fragment {
     }
 
     private class mylistadapter extends ArrayAdapter<String>{
-        private int layout;
+        private final int layout;
         public mylistadapter(@NonNull Context context, int resource, @NonNull List<String> objects) {
             super(context, resource, objects);
             layout = resource;
         }
 
+        @SuppressLint("SetTextI18n")
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            ViewHolder main = null;
+            ViewHolder main;
             if(convertView == null){
                LayoutInflater inflate = LayoutInflater.from(getContext());
                convertView = inflate.inflate(layout,parent,false);
-               ViewHolder vh =new ViewHolder();
-               vh.button = (Button) convertView.findViewById(R.id.button2);
-               vh.desc = (TextView) convertView.findViewById(R.id.textViewDesc);
-               vh.type = (TextView) convertView.findViewById(R.id.textViewType);
-               vh.req = (TextView) convertView.findViewById(R.id.textViewRequest);
-               vh.dist = (TextView) convertView.findViewById(R.id.textViewDist);
+               ViewHolder vh = new ViewHolder();
+               vh.button = convertView.findViewById(R.id.button2);
+               vh.desc = convertView.findViewById(R.id.textViewDesc);
+               vh.type = convertView.findViewById(R.id.textViewType);
+               vh.req = convertView.findViewById(R.id.textViewRequest);
+               vh.dist = convertView.findViewById(R.id.textViewDist);
                ArrayList<String> curData = allData.get(String.valueOf(position));
-               vh.desc.setText(curData.get(1));
+                assert curData != null;
+                vh.desc.setText(curData.get(1));
                vh.type.setText(curData.get(2));
                vh.req.setText(curData.get(3));
 
@@ -206,14 +181,9 @@ public class RespondFragment extends Fragment {
                double dist = (R * c)*1000; // in metres
                double roundOffDist = Math.round(dist * 100.0) / 100.0;
 
-               vh.dist.setText(String.valueOf(roundOffDist) + "m");
+               vh.dist.setText(roundOffDist + "m");
 
-               vh.button.setOnClickListener(new View.OnClickListener() {
-                   @Override
-                   public void onClick(View view) {
-                       updateCounter(getContext(), String.valueOf(position));
-                   }
-               });
+               vh.button.setOnClickListener(view -> updateCounter(getContext(), String.valueOf(position)));
                convertView.setTag(vh);
             }else{
                 main = (ViewHolder) convertView.getTag();
@@ -225,31 +195,22 @@ public class RespondFragment extends Fragment {
     }
 
     private void updateCounter(Context context, String position){
-        ServerClass serverClass = new ServerClass();
-
-        String id = allData.get(position).get(0);
-        Integer requestId = Integer.valueOf(id);
+        String id = Objects.requireNonNull(allData.get(position)).get(0);
+        int requestId = Integer.parseInt(id);
 
         String incrementNumOfResponderSql = "UPDATE request " +
                 "SET num_of_responder = 1 + (SELECT num_of_responder FROM request WHERE request_id = "+requestId+")" +
                 "WHERE request_id = "+requestId;
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
+            ArrayList<String> curData = allData.get(String.valueOf(position));
+            assert curData != null;
+            LatLng destination = new LatLng(Double.parseDouble(curData.get(4)), Double.parseDouble(curData.get(5)));
+            getPath(destination);
+        }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onResponse(String response) {
-                ArrayList<String> curData = allData.get(String.valueOf(position));
-                LatLng destination = new LatLng(Double.parseDouble(curData.get(4)), Double.parseDouble(curData.get(5)));
-                getPath(destination);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("sql", incrementNumOfResponderSql);
 
@@ -274,26 +235,20 @@ public class RespondFragment extends Fragment {
     public void getLastLocation() {
         FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationClient.getLastLocation()
-            .addOnSuccessListener(new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    // GPS location can be null if GPS is switched off
-                    if (location != null) {
-                        lastKnownLocation = location;
-                    }
-                    getNDisplayRequests(getActivity());
+            .addOnSuccessListener(location -> {
+                // GPS location can be null if GPS is switched off
+                if (location != null) {
+                    lastKnownLocation = location;
                 }
+                getNDisplayRequests(getActivity());
             })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("MapDemoActivity", "Error trying to get last GPS location");
-                    e.printStackTrace();
-                }
+            .addOnFailureListener(e -> {
+                Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                e.printStackTrace();
             });
     }
 
-    public class ViewHolder{
+    public static class ViewHolder{
         TextView desc;
         TextView type;
         TextView req;
