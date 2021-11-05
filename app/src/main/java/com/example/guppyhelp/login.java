@@ -31,6 +31,7 @@ public class login extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final boolean[] buttonIsPressed = {false};
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         TextView email = (TextView) findViewById(R.id.email);
@@ -41,37 +42,41 @@ public class login extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                InputMethodManager imm = (InputMethodManager) getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                if (!buttonIsPressed[0]){
+                    buttonIsPressed[0] = true;
+                    InputMethodManager imm = (InputMethodManager) getBaseContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-                boolean permission = false;
-                boolean gps = false;
-                // Check if permission granted, enable setMyLocation & setMyLocationButton
-                if(checkAndRequestPermissions()) {
-                    permission = true;
-                } else {
-                    Snackbar.make(view, "Please enable location permission", Snackbar.LENGTH_SHORT).show();
-                }
-
-                if(isLocationEnabled(getBaseContext()) == false)
-                {
-                    turnGPSOn();
-                } else {
-                    gps = true;
-                }
-
-                if(gps && permission){
-                    if(email.getText().toString().equals("admin") && password.getText().toString().equals("123")){
-                        //correct account
-                        person = "admin";
-                        openActivity();
-                    }else if(!(email.getText().toString().equals("")) && password.getText().toString().equals("123")){
-                        person = "user";
-                        openActivity();
-                    }else{
-                        //incorrect
-                        Snackbar.make(view, "YOU SHALL NOT PASS!!!", Snackbar.LENGTH_SHORT).show();
+                    boolean permission = false;
+                    boolean gps = false;
+                    // Check if permission granted, enable setMyLocation & setMyLocationButton
+                    if(checkAndRequestPermissions()) {
+                        permission = true;
+                    } else {
+                        Snackbar.make(view, "Please enable location permission", Snackbar.LENGTH_SHORT).show();
                     }
+
+                    if(isLocationEnabled(getBaseContext()) == false)
+                    {
+                        turnGPSOn();
+                    } else {
+                        gps = true;
+                    }
+
+                    if(gps && permission){
+                        if(email.getText().toString().equals("admin") && password.getText().toString().equals("123")){
+                            //correct account
+                            person = "admin";
+                            openActivity();
+                        }else if(!(email.getText().toString().equals("")) && password.getText().toString().equals("123")){
+                            person = "user";
+                            openActivity();
+                        }else{
+                            //incorrect
+                            Snackbar.make(view, "YOU SHALL NOT PASS!!!", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                    buttonIsPressed[0] = false;
                 }
             }
         });

@@ -144,7 +144,6 @@ public class RequestFragment extends Fragment {
                 }
                 else{
                     //change to SOS button
-                    Toast.makeText(getContext(), "Stopping request...", Toast.LENGTH_SHORT).show();
                     requestbutton.setText("SOS");
 
                     ready.setVisibility(View.VISIBLE);
@@ -161,8 +160,6 @@ public class RequestFragment extends Fragment {
                 accept.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // Sending request
-                        Toast.makeText(getContext(), "Sending request...", Toast.LENGTH_SHORT).show();
                         // Change UI
                         sentSOSUI();
 
@@ -241,7 +238,6 @@ public class RequestFragment extends Fragment {
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Toast.makeText(getContext(), "Request sent", Toast.LENGTH_SHORT).show();
                 ((TextView) getView().findViewById(R.id.numberresponded)).setText("0");
             }
         }, new Response.ErrorListener() {
@@ -274,7 +270,7 @@ public class RequestFragment extends Fragment {
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Toast.makeText(getContext(), "Request stopped", Toast.LENGTH_SHORT).show();
+                // Request completed
             }
         }, new Response.ErrorListener() {
             @Override

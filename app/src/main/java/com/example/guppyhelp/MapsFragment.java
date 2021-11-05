@@ -301,7 +301,6 @@ public class MapsFragment extends Fragment {
 
                             map.addMarker(markerOptions);
                         }
-                        Toast.makeText(getActivity(), "Map updated", Toast.LENGTH_SHORT).show();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -358,7 +357,6 @@ public class MapsFragment extends Fragment {
                             lastKnownLocation = location;
                             map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 18.0f));
                             // Get AED from DB
-                            Toast.makeText(getActivity(), "Updating map...", Toast.LENGTH_SHORT).show();
                             get_aed_info(getActivity());
                         }
                     }
