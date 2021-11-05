@@ -22,8 +22,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -43,8 +41,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -55,11 +51,8 @@ import java.util.List;
 import java.util.Map;
 
 // Volley import
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 
 import com.android.volley.toolbox.Volley;
@@ -76,38 +69,26 @@ public class MapsFragment extends Fragment {
     GoogleMap map;
     String person = null;
 
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    private final OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         @SuppressLint("ResourceType")
         @Override
         public void onMapReady(final GoogleMap googleMap) {
             map = googleMap;
 
-            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(@NonNull Marker marker) {
-                    closeAEDDetailPanel();
-                    showAEDDetails(marker);
-                    return true;
-                }
+            googleMap.setOnMarkerClickListener(marker -> {
+                closeAEDDetailPanel();
+                showAEDDetails(marker);
+                return true;
             });
 
-            googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
-                @Override
-                public boolean onMyLocationButtonClick()
-                {
-                    closeAEDDetailPanel();
-                    updateSurroundingAED();
-                    return false;
-                }
+            googleMap.setOnMyLocationButtonClickListener(() -> {
+                closeAEDDetailPanel();
+                updateSurroundingAED();
+                return false;
             });
 
-            googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(@NonNull LatLng latLng) {
-                    closeAEDDetailPanel();
-                }
-            });
+            googleMap.setOnMapClickListener(latLng -> closeAEDDetailPanel());
 
             // Get myLocationButton
             SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -133,12 +114,7 @@ public class MapsFragment extends Fragment {
                     }
                 }
                 // When map is loaded, camera to current location
-                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                    @Override
-                    public void onMapLoaded() {
-                        myLocationButton.performClick();
-                    }
-                });
+                googleMap.setOnMapLoadedCallback(myLocationButton::performClick);
             }
 
         }
@@ -147,14 +123,12 @@ public class MapsFragment extends Fragment {
     // Reload surrounding AEDs
     ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-                        @SuppressLint("ResourceType") final View myLocationButton = mapFragment.getView().findViewById(0x2);
-                        myLocationButton.performClick();
-                    }
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+                    assert mapFragment != null;
+                    @SuppressLint("ResourceType") final View myLocationButton = mapFragment.getView().findViewById(0x2);
+                    myLocationButton.performClick();
                 }
             });
 
@@ -162,19 +136,24 @@ public class MapsFragment extends Fragment {
         // Increase AED icon size
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 18.0f));
         String markerSnippet = marker.getSnippet();
+        assert markerSnippet != null;
         List<String> markerInfo = Arrays.asList(markerSnippet.split("&"));
         String status = markerInfo.get(3);
-        if (status.equals("Available")){
-            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
-        } else if (status.equals("Unavailable")){
-            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon_2));
-        } else if (status.equals("Pending")){
-            marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon_2));
+        switch (status) {
+            case "Available":
+                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon_2));
+                break;
+            case "Unavailable":
+                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon_2));
+                break;
+            case "Pending":
+                marker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon_2));
+                break;
         }
         lastAccessedMarker = marker;
         // Inflate the layout of the popup window
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE );
-        View popupView = inflater.inflate(R.layout.popup_aed, null);
+        @SuppressLint("InflateParams") View popupView = inflater.inflate(R.layout.popup_aed, null);
         // Change text in popup
         TextView aedBuildingText = popupView.findViewById(R.id.pop_aedBuildingText);
         TextView aedLocationText = popupView.findViewById(R.id.pop_aedLocationText);
@@ -209,22 +188,14 @@ public class MapsFragment extends Fragment {
         }
         // Create onClickListener for buttons
         TextView moreDetailsButton = popupView.findViewById(R.id.pop_moreDetailButton);
-        moreDetailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intentAEDDetails = new Intent(getActivity(), AEDDetailsActivity.class);
-                intentAEDDetails.putExtra("id", lastAccessedMarker.getTitle());
-                intentAEDDetails.putExtra("person", person);
-                someActivityResultLauncher.launch(intentAEDDetails);
-            }
+        moreDetailsButton.setOnClickListener(view -> {
+            Intent intentAEDDetails = new Intent(getActivity(), AEDDetailsActivity.class);
+            intentAEDDetails.putExtra("id", lastAccessedMarker.getTitle());
+            intentAEDDetails.putExtra("person", person);
+            someActivityResultLauncher.launch(intentAEDDetails);
         });
         TextView navigateButton = popupView.findViewById(R.id.pop_navigateButton);
-        navigateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getPath(marker);
-            }
-        });
+        navigateButton.setOnClickListener(view -> getPath(marker));
         // Create the popup window
         popupWindow = new PopupWindow();
         popupWindow.setContentView(popupView);
@@ -233,12 +204,7 @@ public class MapsFragment extends Fragment {
         popupWindow.setFocusable(false);
         popupWindow.setOutsideTouchable(true);
         // When tab is pressed, change icon back + dismiss popup
-        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                closeAEDDetailPanel();
-            }
-        });
+        popupWindow.setOnDismissListener(this::closeAEDDetailPanel);
         // Show the popup window
         popupWindow.showAsDropDown(getView(), 0, -getView().getHeight()+popupView.getHeight());
     }
@@ -247,23 +213,27 @@ public class MapsFragment extends Fragment {
         // Close AED popup
         if (lastAccessedMarker != null){
             String markerSnippet = lastAccessedMarker.getSnippet();
+            assert markerSnippet != null;
             String status = Arrays.asList(markerSnippet.split("&")).get(3);
 
-            if (status.equals("Available")){
-                lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
-            } else if (status.equals("Unavailable")){
-                lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon));
-            } else if (status.equals("Pending")){
-                lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon));
+            switch (status) {
+                case "Available":
+                    lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_icon));
+                    break;
+                case "Unavailable":
+                    lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_unava_icon));
+                    break;
+                case "Pending":
+                    lastAccessedMarker.setIcon(bitmapDescriptorFromVector(getContext(), R.drawable.ic_aed_pending_icon));
+                    break;
             }
             popupWindow.dismiss();
         }
     }
 
     private void get_aed_info(Context context){
-        ServerClass serverClass = new ServerClass();
-        Double lat = lastKnownLocation.getLatitude();
-        Double lng = lastKnownLocation.getLongitude();
+        double lat = lastKnownLocation.getLatitude();
+        double lng = lastKnownLocation.getLongitude();
 
         String get_aed_SQL;
         if(person.equals("admin")){
@@ -277,53 +247,45 @@ public class MapsFragment extends Fragment {
         }
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
-        StringRequest mStringRequest = new StringRequest(Request.Method.POST, serverClass.getQueryURL(context, "run_query.php"), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
+        StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+
+                JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
+                JSONArray items = messageObject.getJSONArray("data");
+
                 try {
-                    JSONObject jsonObject = new JSONObject(response);
+                    for (int i = 0; i < items.length(); i++) {
+                        JSONObject aed = items.getJSONObject(i);
 
-                    JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
-                    JSONArray items = messageObject.getJSONArray("data");
+                        MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
+                                .title(aed.getString("objectid"))
+                                .snippet(aed.getString("building_n") + "&" + aed.getString("aed_loca_1") + "&" + aed.getString("operating_") + "&" + aed.getString("status"));
 
-                    try {
-                        for (int i = 0; i < items.length(); i++) {
-                            JSONObject aed = items.getJSONObject(i);
-
-                            MarkerOptions markerOptions = new MarkerOptions().position(new LatLng(Double.parseDouble(aed.getString("latitude")), Double.parseDouble(aed.getString("longtitude"))))
-                                    .title(aed.getString("objectid"))
-                                    .snippet(aed.getString("building_n") + "&" + aed.getString("aed_loca_1") + "&" + aed.getString("operating_") + "&" + aed.getString("status"));
-
-                            if (aed.getString("status").equals("Pending")){
-                                markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon));
-                            }
-                            else if (aed.getString("status").equals("Unavailable")){
-                                markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_unava_icon));
-                            }
-                            else{
-                                markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon));
-                            }
-
-                            map.addMarker(markerOptions);
+                        if (aed.getString("status").equals("Pending")){
+                            markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_pending_icon));
                         }
-                        ((MainActivity)getActivity()).toggleBool();
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                        else if (aed.getString("status").equals("Unavailable")){
+                            markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_unava_icon));
+                        }
+                        else{
+                            markerOptions.icon(bitmapDescriptorFromVector(getActivity(), R.drawable.ic_aed_icon));
+                        }
 
+                        map.addMarker(markerOptions);
+                    }
+                    ((MainActivity)getActivity()).toggleBool();
                 } catch (JSONException e) {
-                    Log.e("Debug", response);
-                    Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
                 }
+
+            } catch (JSONException e) {
+                Log.e("Debug", response);
+                Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show();
             }
-        }, new Response.ErrorListener() {
+        }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("sql", get_aed_SQL);
 
@@ -355,33 +317,28 @@ public class MapsFragment extends Fragment {
     public void getLastLocation() {
         FusedLocationProviderClient locationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // GPS location can be null if GPS is switched off
-                        if (location != null) {
-                            lastKnownLocation = location;
-                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 18.0f));
-                            if(!((MainActivity)getActivity()).getBool()){
-                                ((MainActivity)getActivity()).toggleBool();
-                                // Get AED from DB
-                                get_aed_info(getActivity());
-                            }
+                .addOnSuccessListener(location -> {
+                    // GPS location can be null if GPS is switched off
+                    if (location != null) {
+                        lastKnownLocation = location;
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 18.0f));
+                        if(!((MainActivity)getActivity()).getBool()){
+                            ((MainActivity)getActivity()).toggleBool();
+                            // Get AED from DB
+                            get_aed_info(getActivity());
                         }
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("MapDemoActivity", "Error trying to get last GPS location");
-                        e.printStackTrace();
-                    }
+                .addOnFailureListener(e -> {
+                    Log.d("MapDemoActivity", "Error trying to get last GPS location");
+                    e.printStackTrace();
                 });
     }
 
     // Change vector to bitmap
     private BitmapDescriptor bitmapDescriptorFromVector(Context context, int vectorResId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        assert vectorDrawable != null;
         vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
         Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
@@ -396,7 +353,7 @@ public class MapsFragment extends Fragment {
             listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
         if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(getActivity(), listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]),REQUEST_ID_MULTIPLE_PERMISSIONS);
+            ActivityCompat.requestPermissions(getActivity(), listPermissionsNeeded.toArray(new String[0]),REQUEST_ID_MULTIPLE_PERMISSIONS);
             return false;
         }
         return true;
