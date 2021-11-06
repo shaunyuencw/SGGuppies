@@ -40,7 +40,7 @@ public class RequestFragment extends Fragment {
     static PopupWindow popupWindow = null;
     boolean SOS = false;
 
-    final boolean[] isStillRefreshing = {false};
+    private boolean isStillRefreshing = false;
     Runnable runnableanim;
     String username;
     private Location lastKnownLocation = null;
@@ -52,7 +52,7 @@ public class RequestFragment extends Fragment {
         username = getActivity().getIntent().getExtras().getString("username");
 
         // Prevent button spam when loading the page
-        isStillRefreshing[0] = true;
+        isStillRefreshing = true;
         getRequestDetail(getContext());
 
         View rootView2 = inflater.inflate(R.layout.fragment_request, container, false);
@@ -64,8 +64,8 @@ public class RequestFragment extends Fragment {
         Handler hand = new Handler();
         mSwipeRefreshLayout = rootView2.findViewById(R.id.refresh);
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
-            if(!isStillRefreshing[0]){
-                isStillRefreshing[0] = true;
+            if(!isStillRefreshing){
+                isStillRefreshing = true;
                 mSwipeRefreshLayout.setRefreshing(true);
                 hand.removeCallbacks(runnableanim);
                 getRequestDetail(getContext());
@@ -93,7 +93,7 @@ public class RequestFragment extends Fragment {
         Button sos = rootView2.findViewById(R.id.SOSButton);
 
         sos.setOnClickListener(view -> {
-            if(!isStillRefreshing[0]){
+            if(!isStillRefreshing){
                 @SuppressLint("InflateParams") View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
                 Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
                 @SuppressLint("CutPasteId") Button requestbutton = rootView2.findViewById(R.id.SOSButton);
@@ -258,7 +258,7 @@ public class RequestFragment extends Fragment {
                     ((TextView) getView().findViewById(R.id.numberresponded)).setText(numOfResponder);
                     sentSOSUI();
                 }
-                isStillRefreshing[0] = false;
+                isStillRefreshing = false;
 
             } catch (JSONException e) {
                 Log.e("Debug", get_request_detail_sql);

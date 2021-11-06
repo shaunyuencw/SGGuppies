@@ -44,7 +44,7 @@ public class RespondFragment extends Fragment {
     ListView requestListView;
     private ArrayList<String> sendData = new ArrayList<>();
     private HashMap<String, ArrayList<String>> allData = new HashMap<>();
-    final boolean[] isStillRefreshing = {false};
+    private boolean isStillRefreshing = false;
     String person = null;
     private Location lastKnownLocation = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -60,8 +60,8 @@ public class RespondFragment extends Fragment {
         getLastLocation();
         mSwipeRefreshLayout = rootView.findViewById(R.id.refresh2);
         mSwipeRefreshLayout.setOnRefreshListener(() -> {
-            if(!isStillRefreshing[0]){
-                isStillRefreshing[0] = true;
+            if(!isStillRefreshing){
+                isStillRefreshing = true;
                 mSwipeRefreshLayout.setRefreshing(true);
                 requestListView.setAdapter(null);
                 sendData = new ArrayList<>();
@@ -87,7 +87,6 @@ public class RespondFragment extends Fragment {
             String tempStr;
             try {
                 JSONObject jsonObject = new JSONObject(response);
-
                 JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
                 JSONArray items = messageObject.getJSONArray("data");
 
@@ -112,9 +111,8 @@ public class RespondFragment extends Fragment {
 
                         sendData.add(tempStr);
                         allData.put(tempStr, data);
-
-                        isStillRefreshing[0] = false;
                     }
+                    isStillRefreshing = false;
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
