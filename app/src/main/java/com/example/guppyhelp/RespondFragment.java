@@ -48,6 +48,7 @@ public class RespondFragment extends Fragment {
     String person = null;
     private Location lastKnownLocation = null;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private boolean isPressedRespond = false;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -183,7 +184,21 @@ public class RespondFragment extends Fragment {
 
                vh.dist.setText(roundOffDist + "m");
 
-               vh.button.setOnClickListener(view -> updateCounter(getContext(), String.valueOf(position)));
+               vh.button.setOnClickListener(view -> {
+                   if(!isPressedRespond){
+                       isPressedRespond = true;
+                       // Update DB increase counter
+                       String id = Objects.requireNonNull(allData.get(String.valueOf(position))).get(0);
+                       updateCounter(getContext(), id);
+
+                       // Redirect to Google Map
+                       ArrayList<String> curData1 = allData.get(String.valueOf(position));
+                       assert curData1 != null;
+                       LatLng destination = new LatLng(Double.parseDouble(curData1.get(4)), Double.parseDouble(curData1.get(5)));
+                       getPath(destination);
+                       isPressedRespond = false;
+                   }
+               });
                convertView.setTag(vh);
             }else{
                 main = (ViewHolder) convertView.getTag();
@@ -194,8 +209,7 @@ public class RespondFragment extends Fragment {
         }
     }
 
-    private void updateCounter(Context context, String position){
-        String id = Objects.requireNonNull(allData.get(position)).get(0);
+    private void updateCounter(Context context, String id){
         int requestId = Integer.parseInt(id);
 
         String incrementNumOfResponderSql = "UPDATE request " +
@@ -204,10 +218,7 @@ public class RespondFragment extends Fragment {
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
-            ArrayList<String> curData = allData.get(String.valueOf(position));
-            assert curData != null;
-            LatLng destination = new LatLng(Double.parseDouble(curData.get(4)), Double.parseDouble(curData.get(5)));
-            getPath(destination);
+            // Complete update
         }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
             @Override
             protected Map<String, String> getParams() {
