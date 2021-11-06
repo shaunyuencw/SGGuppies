@@ -56,6 +56,9 @@ public class RequestFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         username = getActivity().getIntent().getExtras().getString("username");
+
+        // Prevent button spam when loading the page
+        isStillRefreshing[0] = true;
         getRequestDetail(getContext());
 
         View rootView2 = inflater.inflate(R.layout.fragment_request, container, false);
@@ -96,72 +99,73 @@ public class RequestFragment extends Fragment {
         Button sos = rootView2.findViewById(R.id.SOSButton);
 
         sos.setOnClickListener(view -> {
+            if(!isStillRefreshing[0]){
+                @SuppressLint("InflateParams") View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
+                Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
+                @SuppressLint("CutPasteId") Button requestbutton = rootView2.findViewById(R.id.SOSButton);
+                Button accept = popupView.findViewById(R.id.acceptrequestbutton);
+                ImageView cancel = popupView.findViewById(R.id.cancelreq);
 
-            @SuppressLint("InflateParams") View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
-            Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
-            @SuppressLint("CutPasteId") Button requestbutton = rootView2.findViewById(R.id.SOSButton);
-            Button accept = popupView.findViewById(R.id.acceptrequestbutton);
-            ImageView cancel = popupView.findViewById(R.id.cancelreq);
+                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
 
-            int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-            int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-
-            if(!SOS){
-                if(popupWindow == null){
-                    popupWindow = new PopupWindow(popupView, width, height, false);
-                    popupWindow.setOutsideTouchable(false);
-                    LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
-                    dark.setVisibility(View.VISIBLE);
-                    popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
-                    popupWindow.setFocusable(true);
-                    popupWindow.setOutsideTouchable(true);
-                    popupWindow.setOnDismissListener(() -> {
-                        popupWindow = null;
-                        dark.setVisibility(View.INVISIBLE);
-                    });
-                    popupWindow.update();
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(popupView.getContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.emergencytypes));
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    mySpinner.setAdapter(adapter);
+                if(!SOS){
+                    if(popupWindow == null){
+                        popupWindow = new PopupWindow(popupView, width, height, false);
+                        popupWindow.setOutsideTouchable(false);
+                        LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
+                        dark.setVisibility(View.VISIBLE);
+                        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+                        popupWindow.setFocusable(true);
+                        popupWindow.setOutsideTouchable(true);
+                        popupWindow.setOnDismissListener(() -> {
+                            popupWindow = null;
+                            dark.setVisibility(View.INVISIBLE);
+                        });
+                        popupWindow.update();
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(popupView.getContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.emergencytypes));
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        mySpinner.setAdapter(adapter);
+                    }
                 }
-            }
-            else{
-                //change to SOS button
-                requestbutton.setText("SOS");
+                else{
+                    //change to SOS button
+                    requestbutton.setText("SOS");
 
-                ready.setVisibility(View.VISIBLE);
-                responded.setVisibility(View.GONE);
-                noresponder.setVisibility(View.GONE);
-                num.setVisibility(View.GONE);
-                SOS = false;
-                hand.removeCallbacks(runnableanim);
+                    ready.setVisibility(View.VISIBLE);
+                    responded.setVisibility(View.GONE);
+                    noresponder.setVisibility(View.GONE);
+                    num.setVisibility(View.GONE);
+                    SOS = false;
+                    hand.removeCallbacks(runnableanim);
 
-                // Update request status
-                stop_request(getContext());
-            }
+                    // Update request status
+                    stop_request(getContext());
+                }
 
-            accept.setOnClickListener(view12 -> {
-                // Change UI
-                sentSOSUI();
+                accept.setOnClickListener(view12 -> {
+                    // Change UI
+                    sentSOSUI();
 
-                LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
-                dark.setVisibility(View.INVISIBLE);
-
-                // Get location and update DB
-                getLastLocation();
-            });
-
-            cancel.setOnClickListener(view1 -> {
-                if(popupWindow!=null) {
-                    popupWindow.dismiss();
-                    popupWindow = null;
                     LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
                     dark.setVisibility(View.INVISIBLE);
-                    Button requestbutton1 = getActivity().findViewById(R.id.SOSButton);
-                    requestbutton1.setText("SOS");
-                    SOS = false;
-                }
-            });
+
+                    // Get location and update DB
+                    getLastLocation();
+                });
+
+                cancel.setOnClickListener(view1 -> {
+                    if(popupWindow!=null) {
+                        popupWindow.dismiss();
+                        popupWindow = null;
+                        LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
+                        dark.setVisibility(View.INVISIBLE);
+                        Button requestbutton1 = getActivity().findViewById(R.id.SOSButton);
+                        requestbutton1.setText("SOS");
+                        SOS = false;
+                    }
+                });
+            }
         });
 
         return rootView2;
@@ -190,11 +194,6 @@ public class RequestFragment extends Fragment {
     }
 
     private void submit_request(Context context){
-        Date date = new Date();
-        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("GMT+8"));
-        String curDateTime = df.format(date);
-
         View popupView = popupWindow.getContentView();
         TextView comments = popupView.findViewById(R.id.comments);
         Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
@@ -207,7 +206,7 @@ public class RequestFragment extends Fragment {
         // requester_username, request_datetime, comments, type_of_emergency,
         // field_location, LONGTITUDE, LATITUDE
         String submit_request = "INSERT INTO request(requester_username, request_datetime, comments, type_of_emergency, field_location, LONGTITUDE, LATITUDE) " +
-                "VALUES ('"+username+"', '"+curDateTime+"', '"+Comments+"', '"+type+"', " +
+                "VALUES ('"+username+"', NOW(), '"+Comments+"', '"+type+"', " +
                 ""+null+", "+lastKnownLocation.getLongitude()+", "+lastKnownLocation.getLatitude()+")";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
@@ -248,17 +247,9 @@ public class RequestFragment extends Fragment {
     }
 
     private void getRequestDetail(Context context){
-        Date date = new Date();
-        @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.MINUTE, -30);
-        Date bef30dateTime = c.getTime();
-        String bef30dateTimeStr = df.format(bef30dateTime);
-
         String get_request_detail_sql = "SELECT num_of_responder " +
                 "FROM request " +
-                "WHERE requester_username = '"+username+"' AND status = 'Active' AND request_datetime > '"+bef30dateTimeStr+"'";
+                "WHERE requester_username = '"+username+"' AND status = 'Active' AND request_datetime > DATE_SUB(NOW(), INTERVAL 30 MINUTE)";
 
         RequestQueue mRequestQueue = Volley.newRequestQueue(context);
         StringRequest mStringRequest = new StringRequest(Request.Method.POST, ServerClass.getQueryURL(context, "run_query.php"), response -> {
@@ -268,10 +259,13 @@ public class RequestFragment extends Fragment {
                 JSONObject messageObject = new JSONObject(jsonObject.getString("message"));
                 JSONArray items = messageObject.getJSONArray("data");
 
-                String numOfResponder = items.getJSONObject(0).getString("num_of_responder");
-                ((TextView) getView().findViewById(R.id.numberresponded)).setText(numOfResponder);
-                sentSOSUI();
+                if(items.length() > 0){
+                    String numOfResponder = items.getJSONObject(0).getString("num_of_responder");
+                    ((TextView) getView().findViewById(R.id.numberresponded)).setText(numOfResponder);
+                    sentSOSUI();
+                }
                 isStillRefreshing[0] = false;
+
             } catch (JSONException e) {
                 Log.e("Debug", get_request_detail_sql);
             }
