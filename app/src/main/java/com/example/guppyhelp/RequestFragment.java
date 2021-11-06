@@ -93,18 +93,17 @@ public class RequestFragment extends Fragment {
         Button sos = rootView2.findViewById(R.id.SOSButton);
 
         sos.setOnClickListener(view -> {
+            @SuppressLint("InflateParams") View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
+            Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
+            @SuppressLint("CutPasteId") Button requestbutton = rootView2.findViewById(R.id.SOSButton);
+            Button accept = popupView.findViewById(R.id.acceptrequestbutton);
+            ImageView cancel = popupView.findViewById(R.id.cancelreq);
+
             if(!isStillRefreshing){
-                @SuppressLint("InflateParams") View popupView = LayoutInflater.from(getActivity()).inflate(R.layout.request_confirmation, null);
-                Spinner mySpinner = popupView.findViewById(R.id.emergency_type);
-                @SuppressLint("CutPasteId") Button requestbutton = rootView2.findViewById(R.id.SOSButton);
-                Button accept = popupView.findViewById(R.id.acceptrequestbutton);
-                ImageView cancel = popupView.findViewById(R.id.cancelreq);
-
-                int width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                int height = LinearLayout.LayoutParams.WRAP_CONTENT;
-
                 if(!SOS){
                     if(popupWindow == null){
+                        int width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                        int height = LinearLayout.LayoutParams.WRAP_CONTENT;
                         popupWindow = new PopupWindow(popupView, width, height, false);
                         popupWindow.setOutsideTouchable(false);
                         LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
@@ -149,15 +148,13 @@ public class RequestFragment extends Fragment {
                 });
 
                 cancel.setOnClickListener(view1 -> {
-                    if(popupWindow!=null) {
-                        popupWindow.dismiss();
-                        popupWindow = null;
-                        LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
-                        dark.setVisibility(View.INVISIBLE);
-                        Button requestbutton1 = getActivity().findViewById(R.id.SOSButton);
-                        requestbutton1.setText("SOS");
-                        SOS = false;
-                    }
+                    popupWindow.dismiss();
+                    popupWindow = null;
+                    LinearLayout dark = getActivity().findViewById(R.id.darkfilter);
+                    dark.setVisibility(View.INVISIBLE);
+                    Button requestbutton1 = getActivity().findViewById(R.id.SOSButton);
+                    requestbutton1.setText("SOS");
+                    SOS = false;
                 });
             }
         });
@@ -182,11 +179,6 @@ public class RequestFragment extends Fragment {
         runnableanim.run();
     }
 
-    private void closePopupWindow(){
-        popupWindow.dismiss();
-        popupWindow = null;
-    }
-
     private void submit_request(Context context){
         View popupView = popupWindow.getContentView();
         TextView comments = popupView.findViewById(R.id.comments);
@@ -194,7 +186,8 @@ public class RequestFragment extends Fragment {
         String Comments = comments.getText().toString();
         String type = mySpinner.getSelectedItem().toString();
 
-        closePopupWindow();
+        popupWindow.dismiss();
+        popupWindow = null;
 
         Comments = Comments.replaceAll("['\"\\\\]", "\\\\$0");
         // requester_username, request_datetime, comments, type_of_emergency,
@@ -262,6 +255,8 @@ public class RequestFragment extends Fragment {
 
             } catch (JSONException e) {
                 Log.e("Debug", get_request_detail_sql);
+            } catch (NullPointerException e){
+                Log.e("Debug", e.toString());
             }
 
         }, error -> Toast.makeText(context, error.toString(), Toast.LENGTH_SHORT).show()) {
